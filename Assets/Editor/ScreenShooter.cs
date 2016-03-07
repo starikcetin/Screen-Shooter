@@ -20,13 +20,18 @@ namespace Borodar.ScreenShooter
 {
     public class ScreenShooterWindow : EditorWindow
     {
-
         private Camera _camera = Camera.main;
         private int _width = Screen.width;
         private int _height = Screen.height;
 
+        private string _saveFolder = "Assets/Screenshots";
+
+        //---------------------------------------------------------------------
+        // Messages
+        //---------------------------------------------------------------------
+
         [MenuItem("Window/Screen Shooter")]
-        public static void ShowWindow()
+        protected static void ShowWindow()
         {
             // Get existing open window or if none, make a new one:
             ScreenShooterWindow window = (ScreenShooterWindow) EditorWindow.GetWindow(typeof(ScreenShooterWindow));
@@ -46,9 +51,21 @@ namespace Borodar.ScreenShooter
             _height = EditorGUILayout.IntField("Height", _height);
             EditorGUILayout.Space();
 
+            GUILayout.Label("Save To", EditorStyles.boldLabel);
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.TextField(_saveFolder, GUILayout.ExpandWidth(false));
+
+            if (GUILayout.Button("Browse", GUILayout.ExpandWidth(false)))
+            {
+                _saveFolder = EditorUtility.SaveFolderPanel("Save screenshots to:", _saveFolder, Application.dataPath);
+            }
+
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.Space();
+
             if (GUILayout.Button("Take Screenshot"))
             {
-                TakeScreenshot(_width, _height, "Assets/Screenshots", "screenshot");
+                TakeScreenshot(_width, _height, _saveFolder, "screenshot");
             }
         }
 
