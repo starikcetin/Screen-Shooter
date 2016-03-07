@@ -24,3 +24,17 @@ ExportedObj/
 
 # Unity3D Generated File On Crash Reports
 sysinfo.txt
+
+# tk2d generated files
+/Assets/Extensions/TK2DROOT/-tk2d.asset
+/Assets/Extensions/TK2DROOT/-tk2d.asset.meta
+/Assets/-tk2d.asset
+/Assets/-tk2d.asset.meta
+
+# DevConsole build info
+/Assets/StreamingAssets/build_info.txt
+/Assets/StreamingAssets/build_info.txt.meta
+
+# Signing Alias
+/Assets/Scripts/Editor/PreloadSigningAlias.cs
+/Assets/Scripts/Editor/PreloadSigningAlias.cs.meta
