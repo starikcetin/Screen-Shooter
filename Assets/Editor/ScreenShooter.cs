@@ -49,6 +49,13 @@ namespace Borodar.ScreenShooter
             GUILayout.Label("Resolution", EditorStyles.boldLabel);
             _width = EditorGUILayout.IntField("Width", _width);
             _height = EditorGUILayout.IntField("Height", _height);
+
+            if (GUILayout.Button("Screen Size"))
+            {
+                _width = (int)Handles.GetMainGameViewSize().y;
+                _height = (int)Handles.GetMainGameViewSize().x;
+            }
+
             EditorGUILayout.Space();
 
             GUILayout.Label("Save To", EditorStyles.boldLabel);
