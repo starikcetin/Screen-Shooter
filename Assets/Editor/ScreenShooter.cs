@@ -73,7 +73,7 @@ namespace Borodar.ScreenShooter
             GUI.enabled = Directory.Exists(_saveFolder);
             if (GUILayout.Button("Show", GUILayout.ExpandWidth(false)))
             {
-                EditorUtility.RevealInFinder(_saveFolder);
+                Application.OpenURL("file://" + _saveFolder);
             }
             GUI.enabled = true;
 
