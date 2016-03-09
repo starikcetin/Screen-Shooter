@@ -24,7 +24,7 @@ namespace Borodar.ScreenShooter
         private int _width = Screen.width;
         private int _height = Screen.height;
 
-        private string _saveFolder = "Assets/Screenshots";
+        private string _saveFolder = Application.dataPath +"/Screenshots";
         private string _fileName = "screenshot";
         private readonly string[] _fileTypes = {"PNG", "JPG"};
         private int _selectedType;
@@ -53,17 +53,29 @@ namespace Borodar.ScreenShooter
             _width = EditorGUILayout.IntField("Width", _width);
             _height = EditorGUILayout.IntField("Height", _height);
 
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
             if (GUILayout.Button("Screen Size"))
             {
                 _width = (int) Handles.GetMainGameViewSize().x;
                 _height = (int) Handles.GetMainGameViewSize().y;
             }
+            EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.Space();
 
             GUILayout.Label("Save To", EditorStyles.boldLabel);
+            _saveFolder = EditorGUILayout.TextField(_saveFolder);
+
             EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.TextField(_saveFolder, GUILayout.ExpandWidth(false));
+            GUILayout.FlexibleSpace();
+
+            GUI.enabled = Directory.Exists(_saveFolder);
+            if (GUILayout.Button("Show", GUILayout.ExpandWidth(false)))
+            {
+                EditorUtility.RevealInFinder(_saveFolder);
+            }
+            GUI.enabled = true;
 
             if (GUILayout.Button("Browse", GUILayout.ExpandWidth(false)))
             {
