@@ -26,6 +26,8 @@ namespace Borodar.ScreenShooter
 
         private string _saveFolder = "Assets/Screenshots";
         private string _fileName = "screenshot";
+        private readonly string[] _fileTypes = {"PNG", "JPG"};
+        private int _selectedType;
 
         //---------------------------------------------------------------------
         // Messages
@@ -53,8 +55,8 @@ namespace Borodar.ScreenShooter
 
             if (GUILayout.Button("Screen Size"))
             {
-                _width = (int) Handles.GetMainGameViewSize().y;
-                _height = (int) Handles.GetMainGameViewSize().x;
+                _width = (int) Handles.GetMainGameViewSize().x;
+                _height = (int) Handles.GetMainGameViewSize().y;
             }
 
             EditorGUILayout.Space();
@@ -71,7 +73,10 @@ namespace Borodar.ScreenShooter
             EditorGUILayout.EndHorizontal();
 
             GUILayout.Label("File Name", EditorStyles.boldLabel);
+            EditorGUILayout.BeginHorizontal();
             _fileName = EditorGUILayout.TextField(_fileName, GUILayout.ExpandWidth(false));
+            _selectedType = EditorGUILayout.Popup(_selectedType, _fileTypes, GUILayout.MaxWidth(55f));
+            EditorGUILayout.EndHorizontal();
             EditorGUILayout.Space();
             EditorGUILayout.Space();
 
@@ -100,13 +105,26 @@ namespace Borodar.ScreenShooter
             scrTexture.ReadPixels(new Rect(0, 0, scrTexture.width, scrTexture.height), 0, 0);
             scrTexture.Apply();
 
-            SaveTextureAsJPG(scrTexture, folderName, fileName + "." + _width + "x" + _height);
+            SaveTextureAsFile(scrTexture, folderName, fileName + "." + _width + "x" + _height, _selectedType);
         }
 
-        private static void SaveTextureAsJPG(Texture2D texture, string folderName, string fileName)
+        private static void SaveTextureAsFile(Texture2D texture, string folder, string name, int type)
         {
-            var bytes = texture.EncodeToJPG();
-            var imageFilePath = folderName + "/" + fileName + ".jpg";
+            byte[] bytes;
+            string extension;
+
+            if (type > 0)
+            {
+                bytes = texture.EncodeToJPG();
+                extension = ".jpg";
+            }
+            else
+            {
+                bytes = texture.EncodeToPNG();
+                extension = ".png";
+            }
+
+            var imageFilePath = folder + "/" + name + extension;
 
             // ReSharper disable once PossibleNullReferenceException
             (new FileInfo(imageFilePath)).Directory.Create();
