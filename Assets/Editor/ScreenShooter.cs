@@ -75,6 +75,7 @@ namespace Borodar.ScreenShooter
             EditorGUILayout.Space();
             EditorGUILayout.Space();
 
+            GUI.backgroundColor = new Color(0.5f, 0.8f, 0.77f);
             if (GUILayout.Button("Take Screenshot"))
             {
                 TakeScreenshot(_width, _height, _saveFolder, _fileName);
