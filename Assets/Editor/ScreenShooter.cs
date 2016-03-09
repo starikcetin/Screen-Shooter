@@ -25,6 +25,7 @@ namespace Borodar.ScreenShooter
         private int _height = Screen.height;
 
         private string _saveFolder = "Assets/Screenshots";
+        private string _fileName = "screenshot";
 
         //---------------------------------------------------------------------
         // Messages
@@ -52,8 +53,8 @@ namespace Borodar.ScreenShooter
 
             if (GUILayout.Button("Screen Size"))
             {
-                _width = (int)Handles.GetMainGameViewSize().y;
-                _height = (int)Handles.GetMainGameViewSize().x;
+                _width = (int) Handles.GetMainGameViewSize().y;
+                _height = (int) Handles.GetMainGameViewSize().x;
             }
 
             EditorGUILayout.Space();
@@ -68,11 +69,15 @@ namespace Borodar.ScreenShooter
             }
 
             EditorGUILayout.EndHorizontal();
+
+            GUILayout.Label("File Name", EditorStyles.boldLabel);
+            _fileName = EditorGUILayout.TextField(_fileName, GUILayout.ExpandWidth(false));
+            EditorGUILayout.Space();
             EditorGUILayout.Space();
 
             if (GUILayout.Button("Take Screenshot"))
             {
-                TakeScreenshot(_width, _height, _saveFolder, "screenshot");
+                TakeScreenshot(_width, _height, _saveFolder, _fileName);
             }
         }
 
@@ -94,7 +99,7 @@ namespace Borodar.ScreenShooter
             scrTexture.ReadPixels(new Rect(0, 0, scrTexture.width, scrTexture.height), 0, 0);
             scrTexture.Apply();
 
-            SaveTextureAsJPG(scrTexture, folderName, fileName);
+            SaveTextureAsJPG(scrTexture, folderName, fileName + "." + _width + "x" + _height);
         }
 
         private static void SaveTextureAsJPG(Texture2D texture, string folderName, string fileName)
