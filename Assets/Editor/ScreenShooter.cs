@@ -12,22 +12,66 @@
  * the License.
  */
 
+using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
+using UnityEditorInternal;
 using UnityEngine;
 
 namespace Borodar.ScreenShooter
 {
     public class ScreenShooterWindow : EditorWindow
     {
+        private static readonly List<ScreenshotData> listData;
+        private static readonly ReorderableList list;
+
         private Camera _camera = Camera.main;
-        private int _width = Screen.width;
-        private int _height = Screen.height;
 
         private string _saveFolder = Application.dataPath +"/Screenshots";
         private string _fileName = "screenshot";
         private readonly string[] _fileTypes = {"PNG", "JPG"};
         private int _selectedType;
+
+        //---------------------------------------------------------------------
+        // Constructors
+        //---------------------------------------------------------------------
+
+        static ScreenShooterWindow()
+        {
+            listData = new List<ScreenshotData>
+            {
+                new ScreenshotData(800, 480),
+                new ScreenshotData(800, 600),
+                new ScreenshotData(1024, 768),
+                new ScreenshotData(1366, 768)
+            };
+
+            list = new ReorderableList(listData, typeof (ScreenshotData), true, true, true, true)
+            {
+                elementHeight = EditorGUIUtility.singleLineHeight + 4,
+                drawElementCallback = (position, index, isActive, isFocused) =>
+                {
+                    var element = listData[index];
+
+                    const float textWidth = 15;
+                    var inputWidth = (position.width - textWidth) / 2;
+                    
+                    position.y += 2;
+                    position.width = inputWidth;
+                    position.height -= 4;
+                    EditorGUI.IntField(position, element.Width);
+
+                    position.x += position.width;
+                    position.width = textWidth;
+                    EditorGUI.LabelField(position, "x");
+
+                    position.x += position.width;
+                    position.width = inputWidth;
+                    EditorGUI.IntField(position, element.Height);
+                }
+            };
+
+        }
 
         //---------------------------------------------------------------------
         // Messages
@@ -50,18 +94,7 @@ namespace Borodar.ScreenShooter
             EditorGUILayout.Space();
 
             GUILayout.Label("Resolution", EditorStyles.boldLabel);
-            _width = EditorGUILayout.IntField("Width", _width);
-            _height = EditorGUILayout.IntField("Height", _height);
-
-            EditorGUILayout.BeginHorizontal();
-            GUILayout.FlexibleSpace();
-            if (GUILayout.Button("Screen Size"))
-            {
-                _width = (int) Handles.GetMainGameViewSize().x;
-                _height = (int) Handles.GetMainGameViewSize().y;
-            }
-            EditorGUILayout.EndHorizontal();
-
+            list.DoLayoutList();
             EditorGUILayout.Space();
 
             GUILayout.Label("Save To", EditorStyles.boldLabel);
@@ -95,7 +128,10 @@ namespace Borodar.ScreenShooter
             GUI.backgroundColor = new Color(0.5f, 0.8f, 0.77f);
             if (GUILayout.Button("Take Screenshot"))
             {
-                TakeScreenshot(_width, _height, _saveFolder, _fileName);
+                foreach (var data in listData)
+                {
+                    TakeScreenshot(data.Width, data.Height, _saveFolder, _fileName);
+                }
             }
         }
 
@@ -117,7 +153,7 @@ namespace Borodar.ScreenShooter
             scrTexture.ReadPixels(new Rect(0, 0, scrTexture.width, scrTexture.height), 0, 0);
             scrTexture.Apply();
 
-            SaveTextureAsFile(scrTexture, folderName, fileName + "." + _width + "x" + _height, _selectedType);
+            SaveTextureAsFile(scrTexture, folderName, fileName + "." + width + "x" + height, _selectedType);
         }
 
         private static void SaveTextureAsFile(Texture2D texture, string folder, string name, int type)
