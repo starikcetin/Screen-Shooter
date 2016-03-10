@@ -12,11 +12,14 @@
  * the License.
  */
 
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using Borodar.ScreenShooter.Utils;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
+using GameViewSizeType = Borodar.ScreenShooter.Utils.GameViewUtil.GameViewSizeType;
 
 namespace Borodar.ScreenShooter
 {
@@ -40,10 +43,10 @@ namespace Borodar.ScreenShooter
         {
             listData = new List<ScreenshotData>
             {
-                new ScreenshotData(800, 480),
-                new ScreenshotData(800, 600),
+                new ScreenshotData(800, 200),
+                new ScreenshotData(200, 800),
                 new ScreenshotData(1024, 768),
-                new ScreenshotData(1366, 768)
+                new ScreenshotData(1920, 1080)
             };
 
             list = new ReorderableList(listData, typeof (ScreenshotData), true, true, true, true)
@@ -59,7 +62,7 @@ namespace Borodar.ScreenShooter
                     position.y += 2;
                     position.width = inputWidth;
                     position.height -= 4;
-                    EditorGUI.IntField(position, element.Width);
+                    element.Width = EditorGUI.IntField(position, element.Width);
 
                     position.x += position.width;
                     position.width = textWidth;
@@ -67,7 +70,7 @@ namespace Borodar.ScreenShooter
 
                     position.x += position.width;
                     position.width = inputWidth;
-                    EditorGUI.IntField(position, element.Height);
+                    element.Height = EditorGUI.IntField(position, element.Height);
                 }
             };
 
@@ -128,16 +131,37 @@ namespace Borodar.ScreenShooter
             GUI.backgroundColor = new Color(0.5f, 0.8f, 0.77f);
             if (GUILayout.Button("Take Screenshot"))
             {
-                foreach (var data in listData)
-                {
-                    TakeScreenshot(data.Width, data.Height, _saveFolder, _fileName);
-                }
+                    EditorCoroutine.Start(TakeScreenshots());
             }
         }
 
         //---------------------------------------------------------------------
         // Helpers
         //---------------------------------------------------------------------
+
+        private IEnumerator TakeScreenshots()
+        {
+            foreach (var data in listData)
+            {
+                var sizeType = GameViewSizeType.FixedResolution;
+                var sizeGroupType = GameViewUtil.GetCurrentGroupType();
+                var name = "scr: " + data.Width + "x" + data.Height;
+
+                if (!GameViewUtil.IsSizeExist(sizeGroupType, name))
+                {
+                    GameViewUtil.AddCustomSize(sizeType, sizeGroupType, data.Width, data.Height, name);
+                }
+
+                var index = GameViewUtil.FindSizeIndex(sizeGroupType, name);
+                GameViewUtil.SetSizeByIndex(index);
+
+                // add some delay while applying changes
+                var lastFrameTime = EditorApplication.timeSinceStartup;
+                while (EditorApplication.timeSinceStartup - lastFrameTime < 0.1f) yield return null;
+
+                TakeScreenshot(data.Width, data.Height, _saveFolder, _fileName);
+            }
+        }
 
         private void TakeScreenshot(int width, int height, string folderName, string fileName)
         {

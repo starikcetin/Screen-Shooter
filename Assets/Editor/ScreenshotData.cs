@@ -17,10 +17,12 @@ using System;
 namespace Borodar.ScreenShooter
 {
     [Serializable]
-    public struct ScreenshotData
+    public class ScreenshotData
     {
         public int Width;
         public int Height;
+
+        public ScreenshotData() {}
 
         public ScreenshotData(int width, int height)
         {
