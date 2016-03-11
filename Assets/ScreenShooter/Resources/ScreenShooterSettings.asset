@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b023249ec8aa50142ad62b315bc5f090, type: 3}
+  m_Name: ScreenShooterSettings
+  m_EditorClassIdentifier: 
+  Camera: {fileID: 0}
+  ScreenshotConfigs:
+  - Name: android_phone_portrait
+    Width: 540
+    Height: 960
+    Type: 0
+  - Name: android_tablet_7_portrait
+    Width: 800
+    Height: 1280
+    Type: 0
+  - Name: iphone_3.5_inch_portrait
+    Width: 640
+    Height: 960
+    Type: 0
+  - Name: iphone_4_inch_portrait
+    Width: 640
+    Height: 1136
+    Type: 0
+  - Name: iphone_4.7_inch_portrait
+    Width: 750
+    Height: 1334
+    Type: 0
+  - Name: iphone_5.5_inch_portrait
+    Width: 1242
+    Height: 2208
+    Type: 0
+  - Name: ipad_portrait
+    Width: 768
+    Height: 1024
+    Type: 0
+  - Name: ipad_retina_portrait
+    Width: 1536
+    Height: 2048
+    Type: 0
+  - Name: ipad_pro_portrait
+    Width: 2048
+    Height: 2732
+    Type: 0
+  SaveFolder: D:/Work/Borodar/Projects/Screen-Shooter/Assets/Screenshots
