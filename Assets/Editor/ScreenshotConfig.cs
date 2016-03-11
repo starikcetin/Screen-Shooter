@@ -17,16 +17,16 @@ using System;
 namespace Borodar.ScreenShooter
 {
     [Serializable]
-    public class ScreenshotData
+    public class ScreenshotConfig
     {
         public string Name;
         public int Width;
         public int Height;
         public Format Type;
 
-        public ScreenshotData() {}
+        public ScreenshotConfig() {}
 
-        public ScreenshotData(string name, int width, int height, Format type)
+        public ScreenshotConfig(string name, int width, int height, Format type)
         {
             Name = name;
             Width = width;

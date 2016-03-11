@@ -14,77 +14,24 @@
 
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using Borodar.ScreenShooter.Utils;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 using GameViewSizeType = Borodar.ScreenShooter.Utils.GameViewUtil.GameViewSizeType;
-using Format = Borodar.ScreenShooter.ScreenshotData.Format;
+using Format = Borodar.ScreenShooter.ScreenshotConfig.Format;
 
 namespace Borodar.ScreenShooter
-{
+{    
     public class ScreenShooterWindow : EditorWindow
     {
+        public const string RESOURCE_NAME = "ScreenShooterSettings";
+
         private static readonly string[] _fileTypes = { "PNG", "JPG" };
-        private static readonly List<ScreenshotData> _listData;
-        private static readonly ReorderableList _list;        
 
-        private Camera _camera = Camera.main;
-        private string _saveFolder = Application.dataPath +"/Screenshots";
-
-        //---------------------------------------------------------------------
-        // Constructors
-        //---------------------------------------------------------------------
-
-        static ScreenShooterWindow()
-        {
-            _listData = new List<ScreenshotData>
-            {
-                new ScreenshotData("scr_sample", 800, 200, Format.PNG),
-                new ScreenshotData("scr_sample_2", 200, 800, Format.PNG),
-                new ScreenshotData("scr_sample_3", 1024, 768, Format.PNG),
-                new ScreenshotData("scr_sample_4", 1920, 1080, Format.PNG)
-            };
-
-            _list = new ReorderableList(_listData, typeof (ScreenshotData), true, false, true, true)
-            {                
-                elementHeight = EditorGUIUtility.singleLineHeight + 4,
-                drawElementCallback = (position, index, isActive, isFocused) =>
-                {
-                    const float textWidth = 12f;                    
-                    const float dimensionWidth = 45f;
-                    const float typeWidth = 45f;
-                    const float space = 10f;
-
-                    var element = _listData[index];
-                    var nameWidth = position.width - space - textWidth - 2 * dimensionWidth - space - typeWidth;
-
-                    position.y += 2;
-                    position.width = nameWidth;
-                    position.height -= 4;
-                    element.Name = EditorGUI.TextField(position, element.Name);
-
-                    position.x += position.width + space;
-                    position.width = dimensionWidth;
-                    element.Width = EditorGUI.IntField(position, element.Width);
-
-                    position.x += position.width;
-                    position.width = textWidth;
-                    EditorGUI.LabelField(position, "x");
-
-                    position.x += position.width;
-                    position.width = dimensionWidth;
-                    element.Height = EditorGUI.IntField(position, element.Height);
-
-                    position.x += position.width + space;
-                    position.width = typeWidth;
-                    element.Type = (Format) EditorGUI.Popup(position, (int) element.Type, _fileTypes);
-                }
-            };
-
-        }
+        private ScreenShooterSettings _settings;
+        private ReorderableList _list;        
 
         //---------------------------------------------------------------------
         // Messages
@@ -93,50 +40,106 @@ namespace Borodar.ScreenShooter
         [MenuItem("Window/Screen Shooter")]
         protected static void ShowWindow()
         {
-            // Get existing open window or if none, make a new one:
-            ScreenShooterWindow window = (ScreenShooterWindow) EditorWindow.GetWindow(typeof(ScreenShooterWindow));
+            var window = (ScreenShooterWindow) GetWindow(typeof(ScreenShooterWindow));
             window.autoRepaintOnSceneChange = true;
             window.titleContent = new GUIContent("Screen Shooter");
             window.Show();
         }
 
+        protected void OnEnable()
+        {
+            _settings = ScreenShooterSettings.Load();
+
+            // Init reorderable list if required
+            if (_list == null)
+            {
+                _list = new ReorderableList(_settings.ScreenshotConfigs, typeof(ScreenshotConfig), true, false, true, true)
+                {
+                    elementHeight = EditorGUIUtility.singleLineHeight + 4,
+                    drawElementCallback = (position, index, isActive, isFocused) =>
+                    {
+                        const float textWidth = 12f;
+                        const float dimensionWidth = 45f;
+                        const float typeWidth = 45f;
+                        const float space = 10f;
+
+                        var element = _settings.ScreenshotConfigs[index];
+                        var nameWidth = position.width - space - textWidth - 2 * dimensionWidth - space - typeWidth;
+
+                        position.y += 2;
+                        position.width = nameWidth;
+                        position.height -= 4;
+                        element.Name = EditorGUI.TextField(position, element.Name);
+
+                        position.x += position.width + space;
+                        position.width = dimensionWidth;
+                        element.Width = EditorGUI.IntField(position, element.Width);
+
+                        position.x += position.width;
+                        position.width = textWidth;
+                        EditorGUI.LabelField(position, "x");
+
+                        position.x += position.width;
+                        position.width = dimensionWidth;
+                        element.Height = EditorGUI.IntField(position, element.Height);
+
+                        position.x += position.width + space;
+                        position.width = typeWidth;
+                        element.Type = (Format)EditorGUI.Popup(position, (int)element.Type, _fileTypes);
+                    }
+                };
+            }
+        }
+
         protected void OnGUI()
         {
+            GUI.changed = false;
+
+            // -- Camera ------------------------------------------------
+
             GUILayout.Label("Camera", EditorStyles.boldLabel);
-            _camera = (Camera) EditorGUILayout.ObjectField(_camera, typeof (Camera), true);
+            _settings.Camera = (Camera) EditorGUILayout.ObjectField(_settings.Camera, typeof (Camera), true);
             EditorGUILayout.Space();
+
+            // -- Screenshots -------------------------------------------
 
             GUILayout.Label("Screenshots", EditorStyles.boldLabel);
             _list.DoLayoutList();
             EditorGUILayout.Space();
 
+            // -- Save Folder --------------------------------------------
+
             GUILayout.Label("Save To", EditorStyles.boldLabel);
-            _saveFolder = EditorGUILayout.TextField(_saveFolder);
+            _settings.SaveFolder = EditorGUILayout.TextField(_settings.SaveFolder);
 
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
 
-            GUI.enabled = Directory.Exists(_saveFolder);
+            GUI.enabled = Directory.Exists(_settings.SaveFolder);
             if (GUILayout.Button("Show", GUILayout.ExpandWidth(false)))
             {
-                Application.OpenURL("file://" + _saveFolder);
+                Application.OpenURL("file://" + _settings.SaveFolder);
             }
             GUI.enabled = true;
 
             if (GUILayout.Button("Browse", GUILayout.ExpandWidth(false)))
             {
-                _saveFolder = EditorUtility.SaveFolderPanel("Save screenshots to:", _saveFolder, Application.dataPath);
+                _settings.SaveFolder = EditorUtility.SaveFolderPanel("Save screenshots to:", _settings.SaveFolder, Application.dataPath);
             }
 
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.Space();
             EditorGUILayout.Space();
 
+            // -- Take Button ---------------------------------------------
+
             GUI.backgroundColor = new Color(0.5f, 0.8f, 0.77f);
             if (GUILayout.Button("Take Screenshots"))
             {
                     EditorCoroutine.Start(TakeScreenshots());
             }
+
+            if (GUI.changed) EditorUtility.SetDirty(_settings);
         }
 
         //---------------------------------------------------------------------
@@ -147,7 +150,7 @@ namespace Borodar.ScreenShooter
         {
             var currentIndex = GameViewUtil.GetCurrentSizeIndex();
 
-            foreach (var data in _listData)
+            foreach (var data in _settings.ScreenshotConfigs)
             {
                 // apply custom resolution for game view
                 var sizeType = GameViewSizeType.FixedResolution;
@@ -166,7 +169,7 @@ namespace Borodar.ScreenShooter
                 var lastFrameTime = EditorApplication.timeSinceStartup;
                 while (EditorApplication.timeSinceStartup - lastFrameTime < 0.1f) yield return null;
 
-                TakeScreenshot(_saveFolder, data);
+                TakeScreenshot(_settings.SaveFolder, data);
 
                 // just clean it up
                 GameViewUtil.RemoveCustomSize(sizeGroupType, index);
@@ -175,29 +178,30 @@ namespace Borodar.ScreenShooter
             GameViewUtil.SetSizeByIndex(currentIndex);
         }
 
-        private void TakeScreenshot(string folderName, ScreenshotData screenshotData)
+        private void TakeScreenshot(string folderName, ScreenshotConfig screenshotConfig)
         {
-            var scrTexture = new Texture2D(screenshotData.Width, screenshotData.Height, TextureFormat.RGB24, false);
+            var camera = _settings.Camera;
+            var scrTexture = new Texture2D(screenshotConfig.Width, screenshotConfig.Height, TextureFormat.RGB24, false);
             var scrRenderTexture = new RenderTexture(scrTexture.width, scrTexture.height, 24);
-            var camRenderTexture = _camera.targetTexture;
+            var camRenderTexture = camera.targetTexture;
 
-            _camera.targetTexture = scrRenderTexture;
-            _camera.Render();
-            _camera.targetTexture = camRenderTexture;
+            camera.targetTexture = scrRenderTexture;
+            camera.Render();
+            camera.targetTexture = camRenderTexture;
 
             RenderTexture.active = scrRenderTexture;
             scrTexture.ReadPixels(new Rect(0, 0, scrTexture.width, scrTexture.height), 0, 0);
             scrTexture.Apply();
 
-            SaveTextureAsFile(scrTexture, folderName, screenshotData);
+            SaveTextureAsFile(scrTexture, folderName, screenshotConfig);
         }
 
-        private static void SaveTextureAsFile(Texture2D texture, string folder, ScreenshotData screenshotData)
+        private static void SaveTextureAsFile(Texture2D texture, string folder, ScreenshotConfig screenshotConfig)
         {
             byte[] bytes;
             string extension;
 
-            switch (screenshotData.Type)
+            switch (screenshotConfig.Type)
             {
                 case Format.PNG:
                     bytes = texture.EncodeToPNG();
@@ -211,7 +215,7 @@ namespace Borodar.ScreenShooter
                     throw new ArgumentOutOfRangeException();
             }
 
-            var fileName = screenshotData.Name + "." + screenshotData.Width + "x" + screenshotData.Height;
+            var fileName = screenshotConfig.Name + "." + screenshotConfig.Width + "x" + screenshotConfig.Height;
             var imageFilePath = folder + "/" + fileName + extension;
 
             // ReSharper disable once PossibleNullReferenceException
