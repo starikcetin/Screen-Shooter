@@ -19,15 +19,29 @@ namespace Borodar.ScreenShooter
     [Serializable]
     public class ScreenshotData
     {
+        public string Name;
         public int Width;
         public int Height;
+        public Format Type;
 
         public ScreenshotData() {}
 
-        public ScreenshotData(int width, int height)
+        public ScreenshotData(string name, int width, int height, Format type)
         {
+            Name = name;
             Width = width;
             Height = height;
+            Type = type;
+        }
+
+        //---------------------------------------------------------------------
+        // Nested
+        //---------------------------------------------------------------------
+
+        public enum Format
+        {
+            PNG,
+            JPG
         }
     }
 }

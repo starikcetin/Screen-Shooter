@@ -12,6 +12,7 @@
  * the License.
  */
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -20,20 +21,18 @@ using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 using GameViewSizeType = Borodar.ScreenShooter.Utils.GameViewUtil.GameViewSizeType;
+using Format = Borodar.ScreenShooter.ScreenshotData.Format;
 
 namespace Borodar.ScreenShooter
 {
     public class ScreenShooterWindow : EditorWindow
     {
-        private static readonly List<ScreenshotData> listData;
-        private static readonly ReorderableList list;
+        private static readonly string[] _fileTypes = { "PNG", "JPG" };
+        private static readonly List<ScreenshotData> _listData;
+        private static readonly ReorderableList _list;        
 
         private Camera _camera = Camera.main;
-
         private string _saveFolder = Application.dataPath +"/Screenshots";
-        private string _fileName = "screenshot";
-        private readonly string[] _fileTypes = {"PNG", "JPG"};
-        private int _selectedType;
 
         //---------------------------------------------------------------------
         // Constructors
@@ -41,27 +40,35 @@ namespace Borodar.ScreenShooter
 
         static ScreenShooterWindow()
         {
-            listData = new List<ScreenshotData>
+            _listData = new List<ScreenshotData>
             {
-                new ScreenshotData(800, 200),
-                new ScreenshotData(200, 800),
-                new ScreenshotData(1024, 768),
-                new ScreenshotData(1920, 1080)
+                new ScreenshotData("scr_sample", 800, 200, Format.PNG),
+                new ScreenshotData("scr_sample_2", 200, 800, Format.PNG),
+                new ScreenshotData("scr_sample_3", 1024, 768, Format.PNG),
+                new ScreenshotData("scr_sample_4", 1920, 1080, Format.PNG)
             };
 
-            list = new ReorderableList(listData, typeof (ScreenshotData), true, true, true, true)
+            _list = new ReorderableList(_listData, typeof (ScreenshotData), true, true, true, true)
             {
                 elementHeight = EditorGUIUtility.singleLineHeight + 4,
                 drawElementCallback = (position, index, isActive, isFocused) =>
                 {
-                    var element = listData[index];
+                    var element = _listData[index];
 
-                    const float textWidth = 15;
-                    var inputWidth = (position.width - textWidth) / 2;
-                    
+                    const float textWidth = 12f;                    
+                    const float dimensionWidth = 45f;
+                    const float typeWidth = 45f;
+                    const float space = 10f;
+
+                    var nameWidth = position.width - space - textWidth - 2 * dimensionWidth - space - typeWidth;
+
                     position.y += 2;
-                    position.width = inputWidth;
+                    position.width = nameWidth;
                     position.height -= 4;
+                    element.Name = EditorGUI.TextField(position, element.Name);
+
+                    position.x += position.width + space;
+                    position.width = dimensionWidth;
                     element.Width = EditorGUI.IntField(position, element.Width);
 
                     position.x += position.width;
@@ -69,8 +76,12 @@ namespace Borodar.ScreenShooter
                     EditorGUI.LabelField(position, "x");
 
                     position.x += position.width;
-                    position.width = inputWidth;
+                    position.width = dimensionWidth;
                     element.Height = EditorGUI.IntField(position, element.Height);
+
+                    position.x += position.width + space;
+                    position.width = typeWidth;
+                    element.Type = (Format) EditorGUI.Popup(position, (int) element.Type, _fileTypes);
                 }
             };
 
@@ -97,7 +108,7 @@ namespace Borodar.ScreenShooter
             EditorGUILayout.Space();
 
             GUILayout.Label("Resolution", EditorStyles.boldLabel);
-            list.DoLayoutList();
+            _list.DoLayoutList();
             EditorGUILayout.Space();
 
             GUILayout.Label("Save To", EditorStyles.boldLabel);
@@ -119,17 +130,11 @@ namespace Borodar.ScreenShooter
             }
 
             EditorGUILayout.EndHorizontal();
-
-            GUILayout.Label("File Name", EditorStyles.boldLabel);
-            EditorGUILayout.BeginHorizontal();
-            _fileName = EditorGUILayout.TextField(_fileName, GUILayout.ExpandWidth(false));
-            _selectedType = EditorGUILayout.Popup(_selectedType, _fileTypes, GUILayout.MaxWidth(55f));
-            EditorGUILayout.EndHorizontal();
             EditorGUILayout.Space();
             EditorGUILayout.Space();
 
             GUI.backgroundColor = new Color(0.5f, 0.8f, 0.77f);
-            if (GUILayout.Button("Take Screenshot"))
+            if (GUILayout.Button("Take Screenshots"))
             {
                     EditorCoroutine.Start(TakeScreenshots());
             }
@@ -141,7 +146,7 @@ namespace Borodar.ScreenShooter
 
         private IEnumerator TakeScreenshots()
         {
-            foreach (var data in listData)
+            foreach (var data in _listData)
             {
                 var sizeType = GameViewSizeType.FixedResolution;
                 var sizeGroupType = GameViewUtil.GetCurrentGroupType();
@@ -159,13 +164,13 @@ namespace Borodar.ScreenShooter
                 var lastFrameTime = EditorApplication.timeSinceStartup;
                 while (EditorApplication.timeSinceStartup - lastFrameTime < 0.1f) yield return null;
 
-                TakeScreenshot(data.Width, data.Height, _saveFolder, _fileName);
+                TakeScreenshot(_saveFolder, data);
             }
         }
 
-        private void TakeScreenshot(int width, int height, string folderName, string fileName)
+        private void TakeScreenshot(string folderName, ScreenshotData screenshotData)
         {
-            var scrTexture = new Texture2D(width, height, TextureFormat.RGB24, false);
+            var scrTexture = new Texture2D(screenshotData.Width, screenshotData.Height, TextureFormat.RGB24, false);
             var scrRenderTexture = new RenderTexture(scrTexture.width, scrTexture.height, 24);
             var camRenderTexture = _camera.targetTexture;
 
@@ -177,26 +182,30 @@ namespace Borodar.ScreenShooter
             scrTexture.ReadPixels(new Rect(0, 0, scrTexture.width, scrTexture.height), 0, 0);
             scrTexture.Apply();
 
-            SaveTextureAsFile(scrTexture, folderName, fileName + "." + width + "x" + height, _selectedType);
+            SaveTextureAsFile(scrTexture, folderName, screenshotData);
         }
 
-        private static void SaveTextureAsFile(Texture2D texture, string folder, string name, int type)
+        private static void SaveTextureAsFile(Texture2D texture, string folder, ScreenshotData screenshotData)
         {
             byte[] bytes;
             string extension;
 
-            if (type > 0)
+            switch (screenshotData.Type)
             {
-                bytes = texture.EncodeToJPG();
-                extension = ".jpg";
-            }
-            else
-            {
-                bytes = texture.EncodeToPNG();
-                extension = ".png";
+                case Format.PNG:
+                    bytes = texture.EncodeToPNG();
+                    extension = ".png";
+                    break;
+                case Format.JPG:
+                    bytes = texture.EncodeToJPG();
+                    extension = ".jpg";
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
 
-            var imageFilePath = folder + "/" + name + extension;
+            var fileName = screenshotData.Name + "." + screenshotData.Width + "x" + screenshotData.Height;
+            var imageFilePath = folder + "/" + fileName + extension;
 
             // ReSharper disable once PossibleNullReferenceException
             (new FileInfo(imageFilePath)).Directory.Create();
