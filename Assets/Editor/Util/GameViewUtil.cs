@@ -42,14 +42,14 @@ namespace Borodar.ScreenShooter.Utils
 
         public static void SetSizeByIndex(int index)
         {
-            var GameViewType = typeof (Editor).Assembly.GetType("UnityEditor.GameView");
-            var selectedSizeIndexProp = GameViewType.GetProperty("selectedSizeIndex", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            var GameViewWindow = EditorWindow.GetWindow(GameViewType);
+            var gameViewType = typeof (Editor).Assembly.GetType("UnityEditor.GameView");
+            var selectedSizeIndexProp = gameViewType.GetProperty("selectedSizeIndex", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            var gameViewWindow = EditorWindow.GetWindow(gameViewType);
 
-            selectedSizeIndexProp.SetValue(GameViewWindow, index, null);
-            GameViewWindow.Repaint();
+            selectedSizeIndexProp.SetValue(gameViewWindow, index, null);
+            gameViewWindow.Repaint();
 
-            GameViewType.GetMethod("GameViewAspectWasChanged", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(GameViewWindow, null);
+            gameViewType.GetMethod("GameViewAspectWasChanged", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(gameViewWindow, null);
         }
 
         public static void AddCustomSize(GameViewSizeType viewSizeType, GameViewSizeGroupType sizeGroupType, int width, int height, string text)
@@ -60,6 +60,13 @@ namespace Borodar.ScreenShooter.Utils
             var ctor = gameViewSizeType.GetConstructor(new Type[] {typeof (int), typeof (int), typeof (int), typeof (string)});
             var newSize = ctor.Invoke(new object[] {(int) viewSizeType, width, height, text});
             addCustomSize.Invoke(group, new object[] {newSize});
+        }
+
+        public static void RemoveCustomSize(GameViewSizeGroupType sizeGroupType, int index)
+        {
+            var group = GetGroup(sizeGroupType);
+            var addCustomSize = _getGroup.ReturnType.GetMethod("RemoveCustomSize");
+            addCustomSize.Invoke(group, new object[] { index });
         }
 
         public static int FindSizeIndex(GameViewSizeGroupType sizeGroupType, string text)
@@ -126,6 +133,14 @@ namespace Borodar.ScreenShooter.Utils
         {
             var getCurrentGroupTypeProp = _gameViewSizesInstance.GetType().GetProperty("currentGroupType");
             return (GameViewSizeGroupType)(int)getCurrentGroupTypeProp.GetValue(_gameViewSizesInstance, null);
+        }
+
+        public static int GetCurrentSizeIndex()
+        {
+            var gameViewType = typeof(Editor).Assembly.GetType("UnityEditor.GameView");
+            var selectedSizeIndexProp = gameViewType.GetProperty("selectedSizeIndex", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            var gameViewWindow = EditorWindow.GetWindow(gameViewType);
+            return (int) selectedSizeIndexProp.GetValue(gameViewWindow, null);
         }
 
         //---------------------------------------------------------------------

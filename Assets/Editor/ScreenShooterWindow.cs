@@ -145,18 +145,21 @@ namespace Borodar.ScreenShooter
 
         private IEnumerator TakeScreenshots()
         {
+            var currentIndex = GameViewUtil.GetCurrentSizeIndex();
+
             foreach (var data in _listData)
             {
+                // apply custom resolution for game view
                 var sizeType = GameViewSizeType.FixedResolution;
                 var sizeGroupType = GameViewUtil.GetCurrentGroupType();
-                var name = "scr: " + data.Width + "x" + data.Height;
+                var sizeName = "scr_" + data.Width + "x" + data.Height;
 
-                if (!GameViewUtil.IsSizeExist(sizeGroupType, name))
+                if (!GameViewUtil.IsSizeExist(sizeGroupType, sizeName))
                 {
-                    GameViewUtil.AddCustomSize(sizeType, sizeGroupType, data.Width, data.Height, name);
+                    GameViewUtil.AddCustomSize(sizeType, sizeGroupType, data.Width, data.Height, sizeName);
                 }
 
-                var index = GameViewUtil.FindSizeIndex(sizeGroupType, name);
+                var index = GameViewUtil.FindSizeIndex(sizeGroupType, sizeName);
                 GameViewUtil.SetSizeByIndex(index);
 
                 // add some delay while applying changes
@@ -164,7 +167,12 @@ namespace Borodar.ScreenShooter
                 while (EditorApplication.timeSinceStartup - lastFrameTime < 0.1f) yield return null;
 
                 TakeScreenshot(_saveFolder, data);
+
+                // just clean it up
+                GameViewUtil.RemoveCustomSize(sizeGroupType, index);
             }
+
+            GameViewUtil.SetSizeByIndex(currentIndex);
         }
 
         private void TakeScreenshot(string folderName, ScreenshotData screenshotData)
