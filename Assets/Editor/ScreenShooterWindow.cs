@@ -48,18 +48,17 @@ namespace Borodar.ScreenShooter
                 new ScreenshotData("scr_sample_4", 1920, 1080, Format.PNG)
             };
 
-            _list = new ReorderableList(_listData, typeof (ScreenshotData), true, true, true, true)
-            {
+            _list = new ReorderableList(_listData, typeof (ScreenshotData), true, false, true, true)
+            {                
                 elementHeight = EditorGUIUtility.singleLineHeight + 4,
                 drawElementCallback = (position, index, isActive, isFocused) =>
                 {
-                    var element = _listData[index];
-
                     const float textWidth = 12f;                    
                     const float dimensionWidth = 45f;
                     const float typeWidth = 45f;
                     const float space = 10f;
 
+                    var element = _listData[index];
                     var nameWidth = position.width - space - textWidth - 2 * dimensionWidth - space - typeWidth;
 
                     position.y += 2;
@@ -107,7 +106,7 @@ namespace Borodar.ScreenShooter
             _camera = (Camera) EditorGUILayout.ObjectField(_camera, typeof (Camera), true);
             EditorGUILayout.Space();
 
-            GUILayout.Label("Resolution", EditorStyles.boldLabel);
+            GUILayout.Label("Screenshots", EditorStyles.boldLabel);
             _list.DoLayoutList();
             EditorGUILayout.Space();
 
