@@ -14,6 +14,7 @@
 
 using System;
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using Borodar.ScreenShooter.Utils;
 using UnityEditor;
@@ -31,7 +32,9 @@ namespace Borodar.ScreenShooter
         private static readonly string[] _fileTypes = { "PNG", "JPG" };
 
         private ScreenShooterSettings _settings;
-        private ReorderableList _list;        
+        private ReorderableList _list;
+
+        private bool _isMakingScreenshotsNow;
 
         //---------------------------------------------------------------------
         // Messages
@@ -93,7 +96,8 @@ namespace Borodar.ScreenShooter
 
         protected void OnGUI()
         {
-            GUI.changed = false;
+            GUI.enabled = !_isMakingScreenshotsNow;
+            GUI.changed = false;            
 
             // -- Camera ------------------------------------------------
 
@@ -115,12 +119,12 @@ namespace Borodar.ScreenShooter
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
 
-            GUI.enabled = Directory.Exists(_settings.SaveFolder);
+            GUI.enabled &= Directory.Exists(_settings.SaveFolder);
             if (GUILayout.Button("Show", GUILayout.ExpandWidth(false)))
             {
                 Application.OpenURL("file://" + _settings.SaveFolder);
             }
-            GUI.enabled = true;
+            GUI.enabled = !_isMakingScreenshotsNow;
 
             if (GUILayout.Button("Browse", GUILayout.ExpandWidth(false)))
             {
@@ -146,8 +150,10 @@ namespace Borodar.ScreenShooter
         // Helpers
         //---------------------------------------------------------------------
 
+        [SuppressMessage("ReSharper", "PossibleLossOfFraction")]
         private IEnumerator TakeScreenshots()
         {
+            _isMakingScreenshotsNow = true;
             var currentIndex = GameViewUtil.GetCurrentSizeIndex();
 
             // Slow down and unpause editor if required
@@ -156,8 +162,15 @@ namespace Borodar.ScreenShooter
             EditorApplication.isPaused = false;
             Time.timeScale = 0.001f;
 
-            foreach (var data in _settings.ScreenshotConfigs)
+            var configsCount = _settings.ScreenshotConfigs.Count;
+            for (var i = 0; i < configsCount; i++)
             {
+                var data = _settings.ScreenshotConfigs[i];
+
+                // Show progress
+                var info = (i + 1) + " / " + configsCount + " - " + data.Name;
+                EditorUtility.DisplayProgressBar("Taking Screenshots", info, (float) (i + 1) / configsCount);
+
                 // apply custom resolution for game view
                 var sizeType = GameViewSizeType.FixedResolution;
                 var sizeGroupType = GameViewUtil.GetCurrentGroupType();
@@ -170,8 +183,6 @@ namespace Borodar.ScreenShooter
 
                 var index = GameViewUtil.FindSizeIndex(sizeGroupType, sizeName);
                 GameViewUtil.SetSizeByIndex(index);
-
-                
 
                 // add some delay while applying changes
                 var lastFrameTime = EditorApplication.timeSinceStartup;
@@ -188,6 +199,8 @@ namespace Borodar.ScreenShooter
             Time.timeScale = timeScale;
 
             GameViewUtil.SetSizeByIndex(currentIndex);
+            EditorUtility.ClearProgressBar();
+            _isMakingScreenshotsNow = false;
         }
 
         private void TakeScreenshot(string folderName, ScreenshotConfig screenshotConfig)
