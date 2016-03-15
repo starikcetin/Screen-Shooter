@@ -150,6 +150,12 @@ namespace Borodar.ScreenShooter
         {
             var currentIndex = GameViewUtil.GetCurrentSizeIndex();
 
+            // Slow down and unpause editor if required
+            var paused = EditorApplication.isPaused;
+            var timeScale = Time.timeScale;
+            EditorApplication.isPaused = false;
+            Time.timeScale = 0.001f;
+
             foreach (var data in _settings.ScreenshotConfigs)
             {
                 // apply custom resolution for game view
@@ -165,6 +171,8 @@ namespace Borodar.ScreenShooter
                 var index = GameViewUtil.FindSizeIndex(sizeGroupType, sizeName);
                 GameViewUtil.SetSizeByIndex(index);
 
+                
+
                 // add some delay while applying changes
                 var lastFrameTime = EditorApplication.timeSinceStartup;
                 while (EditorApplication.timeSinceStartup - lastFrameTime < 0.1f) yield return null;
@@ -174,6 +182,10 @@ namespace Borodar.ScreenShooter
                 // just clean it up
                 GameViewUtil.RemoveCustomSize(sizeGroupType, index);
             }
+
+            // Restore pause state and time scale
+            EditorApplication.isPaused = paused;
+            Time.timeScale = timeScale;
 
             GameViewUtil.SetSizeByIndex(currentIndex);
         }
