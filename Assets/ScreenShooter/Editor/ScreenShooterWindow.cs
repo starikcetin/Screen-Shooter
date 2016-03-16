@@ -101,26 +101,38 @@ namespace Borodar.ScreenShooter
             GUI.changed = false;
             GUI.enabled = !_isMakingScreenshotsNow;            
 
-            // -- Camera ------------------------------------------------
+            OnGUICameraInput();
+            OnGUIScreenshotsList();
+            OnGUISaveFolderInput();
+            OnGUITakeButton();
+        }
 
+        //---------------------------------------------------------------------
+        // Helpers
+        //---------------------------------------------------------------------
+
+        private void OnGUICameraInput()
+        {
             GUILayout.Label("Camera", EditorStyles.boldLabel);
             if (_settings.Camera == null) _settings.Camera = Camera.main;
-            _settings.Camera = (Camera) EditorGUILayout.ObjectField(_settings.Camera, typeof (Camera), true);
+            _settings.Camera = (Camera)EditorGUILayout.ObjectField(_settings.Camera, typeof(Camera), true);
             if (_settings.Camera == null)
             {
                 EditorGUILayout.HelpBox("Camera is not selected.", MessageType.Error);
                 _hasErrors = true;
             }
             EditorGUILayout.Space();
+        }
 
-            // -- Screenshots -------------------------------------------
-
+        private void OnGUIScreenshotsList()
+        {
             GUILayout.Label("Screenshots", EditorStyles.boldLabel);
             _list.DoLayoutList();
             EditorGUILayout.Space();
+        }
 
-            // -- Save Folder --------------------------------------------
-
+        private void OnGUISaveFolderInput()
+        {
             GUILayout.Label("Save To", EditorStyles.boldLabel);
             _settings.SaveFolder = EditorGUILayout.TextField(_settings.SaveFolder);
 
@@ -136,15 +148,24 @@ namespace Borodar.ScreenShooter
 
             if (GUILayout.Button("Browse", GUILayout.ExpandWidth(false)))
             {
-                _settings.SaveFolder = EditorUtility.SaveFolderPanel("Save screenshots to:", _settings.SaveFolder, Application.dataPath);
+                _settings.SaveFolder = EditorUtility.SaveFolderPanel("Save screenshots to:", _settings.SaveFolder, string.Empty);
+                GUI.FocusControl("Browse");
             }
 
             EditorGUILayout.EndHorizontal();
+
+            if (string.IsNullOrEmpty(_settings.SaveFolder) || _settings.SaveFolder.IndexOfAny(Path.GetInvalidPathChars()) >= 0)
+            {
+                EditorGUILayout.HelpBox("Folder path is empty or contains invalid characters.", MessageType.Error);
+                _hasErrors = true;
+            }
+
             EditorGUILayout.Space();
             EditorGUILayout.Space();
+        }
 
-            // -- Take Button ---------------------------------------------
-
+        private void OnGUITakeButton()
+        {
             GUI.enabled = !_hasErrors;
             GUI.backgroundColor = new Color(0.5f, 0.8f, 0.77f);
             if (GUILayout.Button("Take Screenshots"))
@@ -154,10 +175,6 @@ namespace Borodar.ScreenShooter
 
             if (GUI.changed) EditorUtility.SetDirty(_settings);
         }
-
-        //---------------------------------------------------------------------
-        // Helpers
-        //---------------------------------------------------------------------
 
         [SuppressMessage("ReSharper", "PossibleLossOfFraction")]
         private IEnumerator TakeScreenshots()
