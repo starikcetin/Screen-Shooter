@@ -35,6 +35,7 @@ namespace Borodar.ScreenShooter
         private ReorderableList _list;
 
         private bool _isMakingScreenshotsNow;
+        private bool _hasErrors;
 
         //---------------------------------------------------------------------
         // Messages
@@ -96,13 +97,20 @@ namespace Borodar.ScreenShooter
 
         protected void OnGUI()
         {
-            GUI.enabled = !_isMakingScreenshotsNow;
-            GUI.changed = false;            
+            _hasErrors = false;
+            GUI.changed = false;
+            GUI.enabled = !_isMakingScreenshotsNow;            
 
             // -- Camera ------------------------------------------------
 
             GUILayout.Label("Camera", EditorStyles.boldLabel);
+            if (_settings.Camera == null) _settings.Camera = Camera.main;
             _settings.Camera = (Camera) EditorGUILayout.ObjectField(_settings.Camera, typeof (Camera), true);
+            if (_settings.Camera == null)
+            {
+                EditorGUILayout.HelpBox("Camera is not selected.", MessageType.Error);
+                _hasErrors = true;
+            }
             EditorGUILayout.Space();
 
             // -- Screenshots -------------------------------------------
@@ -137,10 +145,11 @@ namespace Borodar.ScreenShooter
 
             // -- Take Button ---------------------------------------------
 
+            GUI.enabled = !_hasErrors;
             GUI.backgroundColor = new Color(0.5f, 0.8f, 0.77f);
             if (GUILayout.Button("Take Screenshots"))
             {
-                    EditorCoroutine.Start(TakeScreenshots());
+                EditorCoroutine.Start(TakeScreenshots());
             }
 
             if (GUI.changed) EditorUtility.SetDirty(_settings);
@@ -158,96 +167,56 @@ namespace Borodar.ScreenShooter
 
             // Slow down and unpause editor if required
             var paused = EditorApplication.isPaused;
-            var timeScale = Time.timeScale;
-            EditorApplication.isPaused = false;
-            Time.timeScale = 0.001f;
+            var timeScale = Time.timeScale;            
 
-            var configsCount = _settings.ScreenshotConfigs.Count;
-            for (var i = 0; i < configsCount; i++)
+            try
             {
-                var data = _settings.ScreenshotConfigs[i];
+                EditorApplication.isPaused = false;
+                Time.timeScale = 0.001f;
 
-                // Show progress
-                var info = (i + 1) + " / " + configsCount + " - " + data.Name;
-                EditorUtility.DisplayProgressBar("Taking Screenshots", info, (float) (i + 1) / configsCount);
-
-                // apply custom resolution for game view
-                var sizeType = GameViewSizeType.FixedResolution;
-                var sizeGroupType = GameViewUtil.GetCurrentGroupType();
-                var sizeName = "scr_" + data.Width + "x" + data.Height;
-
-                if (!GameViewUtil.IsSizeExist(sizeGroupType, sizeName))
+                var configsCount = _settings.ScreenshotConfigs.Count;
+                for (var i = 0; i < configsCount; i++)
                 {
-                    GameViewUtil.AddCustomSize(sizeType, sizeGroupType, data.Width, data.Height, sizeName);
-                }
+                    var data = _settings.ScreenshotConfigs[i];
 
-                var index = GameViewUtil.FindSizeIndex(sizeGroupType, sizeName);
-                GameViewUtil.SetSizeByIndex(index);
+                    // Show progress
+                    var info = (i + 1) + " / " + configsCount + " - " + data.Name;
+                    EditorUtility.DisplayProgressBar("Taking Screenshots", info, (float) (i + 1)/configsCount);
 
-                // add some delay while applying changes
-                var lastFrameTime = EditorApplication.timeSinceStartup;
-                while (EditorApplication.timeSinceStartup - lastFrameTime < 0.1f) yield return null;
+                    // apply custom resolution for game view
+                    var sizeType = GameViewSizeType.FixedResolution;
+                    var sizeGroupType = GameViewUtil.GetCurrentGroupType();
+                    var sizeName = "scr_" + data.Width + "x" + data.Height;
 
-                TakeScreenshot(_settings.SaveFolder, data);
+                    if (!GameViewUtil.IsSizeExist(sizeGroupType, sizeName))
+                    {
+                        GameViewUtil.AddCustomSize(sizeType, sizeGroupType, data.Width, data.Height, sizeName);
+                    }
 
-                // just clean it up
-                GameViewUtil.RemoveCustomSize(sizeGroupType, index);
+                    var index = GameViewUtil.FindSizeIndex(sizeGroupType, sizeName);
+                    GameViewUtil.SetSizeByIndex(index);
+
+                    // add some delay while applying changes
+                    var lastFrameTime = EditorApplication.timeSinceStartup;
+                    while (EditorApplication.timeSinceStartup - lastFrameTime < 0.1f) yield return null;
+
+                    ScreenshotUtil.TakeScreenshot(_settings.Camera, _settings.SaveFolder, data);
+
+                    // just clean it up
+                    GameViewUtil.RemoveCustomSize(sizeGroupType, index);
+                }                
             }
-
-            // Restore pause state and time scale
-            EditorApplication.isPaused = paused;
-            Time.timeScale = timeScale;
-
-            GameViewUtil.SetSizeByIndex(currentIndex);
-            EditorUtility.ClearProgressBar();
-            _isMakingScreenshotsNow = false;
-        }
-
-        private void TakeScreenshot(string folderName, ScreenshotConfig screenshotConfig)
-        {
-            var camera = _settings.Camera;
-            var scrTexture = new Texture2D(screenshotConfig.Width, screenshotConfig.Height, TextureFormat.RGB24, false);
-            var scrRenderTexture = new RenderTexture(scrTexture.width, scrTexture.height, 24);
-            var camRenderTexture = camera.targetTexture;
-
-            camera.targetTexture = scrRenderTexture;
-            camera.Render();
-            camera.targetTexture = camRenderTexture;
-
-            RenderTexture.active = scrRenderTexture;
-            scrTexture.ReadPixels(new Rect(0, 0, scrTexture.width, scrTexture.height), 0, 0);
-            scrTexture.Apply();
-
-            SaveTextureAsFile(scrTexture, folderName, screenshotConfig);
-        }
-
-        private static void SaveTextureAsFile(Texture2D texture, string folder, ScreenshotConfig screenshotConfig)
-        {
-            byte[] bytes;
-            string extension;
-
-            switch (screenshotConfig.Type)
+            finally
             {
-                case Format.PNG:
-                    bytes = texture.EncodeToPNG();
-                    extension = ".png";
-                    break;
-                case Format.JPG:
-                    bytes = texture.EncodeToJPG();
-                    extension = ".jpg";
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+                // Restore pause state and time scale
+                EditorApplication.isPaused = paused;
+                Time.timeScale = timeScale;
 
-            var fileName = screenshotConfig.Name + "." + screenshotConfig.Width + "x" + screenshotConfig.Height;
-            var imageFilePath = folder + "/" + fileName + extension;
+                GameViewUtil.SetSizeByIndex(currentIndex);
+                EditorUtility.ClearProgressBar();
 
-            // ReSharper disable once PossibleNullReferenceException
-            (new FileInfo(imageFilePath)).Directory.Create();
-            File.WriteAllBytes(imageFilePath, bytes);
-
-            Debug.Log("Image saved to: " + imageFilePath);
+                _isMakingScreenshotsNow = false;
+            }                        
         }
     }
 }
