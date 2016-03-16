@@ -99,12 +99,16 @@ namespace Borodar.ScreenShooter
         {
             _hasErrors = false;
             GUI.changed = false;
-            GUI.enabled = !_isMakingScreenshotsNow;            
+            GUI.enabled = !_isMakingScreenshotsNow;
+
+            Undo.RecordObject(_settings, "ScreenShooter settings");
 
             OnGUICameraInput();
             OnGUIScreenshotsList();
             OnGUISaveFolderInput();
             OnGUITakeButton();
+
+            if (GUI.changed) EditorUtility.SetDirty(_settings);
         }
 
         //---------------------------------------------------------------------
@@ -172,8 +176,6 @@ namespace Borodar.ScreenShooter
             {
                 EditorCoroutine.Start(TakeScreenshots());
             }
-
-            if (GUI.changed) EditorUtility.SetDirty(_settings);
         }
 
         [SuppressMessage("ReSharper", "PossibleLossOfFraction")]
