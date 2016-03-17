@@ -16,8 +16,8 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using Borodar.ScreenShooter.Configs;
 using UnityEditor;
-using Format = Borodar.ScreenShooter.ScreenshotConfig.Format;
 
 namespace Borodar.ScreenShooter
 {
@@ -44,10 +44,9 @@ namespace Borodar.ScreenShooter
             // Initial values
             settings.ScreenshotConfigs = new List<ScreenshotConfig>
             {
-                new ScreenshotConfig("scr_sample", 800, 200, Format.PNG),
-                new ScreenshotConfig("scr_sample_2", 200, 800, Format.PNG),
-                new ScreenshotConfig("scr_sample_3", 1024, 768, Format.PNG),
-                new ScreenshotConfig("scr_sample_4", 1920, 1080, Format.PNG)
+                new ScreenshotConfig("Nexus 4 Portrait", 768, 1280, ScreenshotConfig.Format.PNG),
+                new ScreenshotConfig("iPad Hi-Res Portrait", 1536, 2048, ScreenshotConfig.Format.PNG),
+                new ScreenshotConfig("4K UHD", 3840, 2160, ScreenshotConfig.Format.PNG)
             };
 
             return settings;

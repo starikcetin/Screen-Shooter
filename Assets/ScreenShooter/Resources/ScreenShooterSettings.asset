@@ -13,40 +13,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Camera: {fileID: 0}
   ScreenshotConfigs:
-  - Name: android_phone_portrait
-    Width: 540
-    Height: 960
-    Type: 0
-  - Name: android_tablet_7_portrait
-    Width: 800
+  - Name: Nexus 4 Portrait
+    Width: 768
     Height: 1280
     Type: 0
-  - Name: iphone_3.5_inch_portrait
-    Width: 640
-    Height: 960
-    Type: 0
-  - Name: iphone_4_inch_portrait
-    Width: 640
-    Height: 1136
-    Type: 0
-  - Name: iphone_4.7_inch_portrait
-    Width: 750
-    Height: 1334
-    Type: 0
-  - Name: iphone_5.5_inch_portrait
-    Width: 1242
-    Height: 2208
-    Type: 0
-  - Name: ipad_portrait
-    Width: 768
-    Height: 1024
-    Type: 0
-  - Name: ipad_retina_portrait
+  - Name: iPad Hi-Res Portrait
     Width: 1536
     Height: 2048
     Type: 0
-  - Name: ipad_pro_portrait
-    Width: 2048
-    Height: 2732
+  - Name: 4K UHD
+    Width: 3840
+    Height: 2160
+    Type: 0
+  - Name: Custom
+    Width: 777
+    Height: 777
     Type: 0
   SaveFolder: D:/Work/Borodar/Projects/Screen-Shooter/Assets/Screenshots

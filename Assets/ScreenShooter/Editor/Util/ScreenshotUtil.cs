@@ -14,6 +14,7 @@
 
 using System;
 using System.IO;
+using Borodar.ScreenShooter.Configs;
 using UnityEngine;
 
 namespace Borodar.ScreenShooter.Utils

@@ -12,24 +12,21 @@
  * the License.
  */
 
-using System;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using Borodar.ScreenShooter.Configs;
 using Borodar.ScreenShooter.Utils;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 using GameViewSizeType = Borodar.ScreenShooter.Utils.GameViewUtil.GameViewSizeType;
-using Format = Borodar.ScreenShooter.ScreenshotConfig.Format;
 
 namespace Borodar.ScreenShooter
 {    
     public class ScreenShooterWindow : EditorWindow
     {
         public const string RESOURCE_NAME = "ScreenShooterSettings";
-
-        private static readonly string[] _fileTypes = { "PNG", "JPG" };
 
         private ScreenShooterSettings _settings;
         private ReorderableList _list;
@@ -53,46 +50,8 @@ namespace Borodar.ScreenShooter
         protected void OnEnable()
         {
             _settings = ScreenShooterSettings.Load();
-
             // Init reorderable list if required
-            if (_list == null)
-            {
-                _list = new ReorderableList(_settings.ScreenshotConfigs, typeof(ScreenshotConfig), true, false, true, true)
-                {
-                    elementHeight = EditorGUIUtility.singleLineHeight + 4,
-                    drawElementCallback = (position, index, isActive, isFocused) =>
-                    {
-                        const float textWidth = 12f;
-                        const float dimensionWidth = 45f;
-                        const float typeWidth = 45f;
-                        const float space = 10f;
-
-                        var element = _settings.ScreenshotConfigs[index];
-                        var nameWidth = position.width - space - textWidth - 2 * dimensionWidth - space - typeWidth;
-
-                        position.y += 2;
-                        position.width = nameWidth;
-                        position.height -= 4;
-                        element.Name = EditorGUI.TextField(position, element.Name);
-
-                        position.x += position.width + space;
-                        position.width = dimensionWidth;
-                        element.Width = EditorGUI.IntField(position, element.Width);
-
-                        position.x += position.width;
-                        position.width = textWidth;
-                        EditorGUI.LabelField(position, "x");
-
-                        position.x += position.width;
-                        position.width = dimensionWidth;
-                        element.Height = EditorGUI.IntField(position, element.Height);
-
-                        position.x += position.width + space;
-                        position.width = typeWidth;
-                        element.Type = (Format)EditorGUI.Popup(position, (int)element.Type, _fileTypes);
-                    }
-                };
-            }
+            _list = _list ?? ReorderableConfigsList.Create(_settings.ScreenshotConfigs, MenuItemHandler);
         }
 
         protected void OnGUI()
@@ -236,6 +195,11 @@ namespace Borodar.ScreenShooter
 
                 _isMakingScreenshotsNow = false;
             }                        
+        }
+
+        private void MenuItemHandler(object target)
+        {
+            _settings.ScreenshotConfigs.Add(target as ScreenshotConfig);
         }
     }
 }

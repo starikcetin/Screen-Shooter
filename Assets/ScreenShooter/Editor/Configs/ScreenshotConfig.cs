@@ -14,7 +14,7 @@
 
 using System;
 
-namespace Borodar.ScreenShooter
+namespace Borodar.ScreenShooter.Configs
 {
     [Serializable]
     public class ScreenshotConfig
