@@ -62,8 +62,8 @@ namespace Borodar.ScreenShooter
 
             Undo.RecordObject(_settings, "ScreenShooter settings");
 
-            OnGUICameraInput();
-            OnGUIScreenshotsList();
+            OnGUICameraInput();            
+            OnGUIScreenshotConfigs();
             OnGUISaveFolderInput();
             OnGUITakeButton();
 
@@ -87,10 +87,13 @@ namespace Borodar.ScreenShooter
             EditorGUILayout.Space();
         }
 
-        private void OnGUIScreenshotsList()
+        private void OnGUIScreenshotConfigs()
         {
             GUILayout.Label("Screenshots", EditorStyles.boldLabel);
             _list.DoLayoutList();
+            EditorGUILayout.Space();
+
+            _settings.Tag = EditorGUILayout.TextField("Tag", _settings.Tag);
             EditorGUILayout.Space();
         }
 
@@ -178,7 +181,7 @@ namespace Borodar.ScreenShooter
                     var lastFrameTime = EditorApplication.timeSinceStartup;
                     while (EditorApplication.timeSinceStartup - lastFrameTime < 0.1f) yield return null;
 
-                    ScreenshotUtil.TakeScreenshot(_settings.Camera, _settings.SaveFolder, data);
+                    ScreenshotUtil.TakeScreenshot(_settings, data);
 
                     // just clean it up
                     GameViewUtil.RemoveCustomSize(sizeGroupType, index);

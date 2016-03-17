@@ -27,6 +27,7 @@ namespace Borodar.ScreenShooter
 
         public Camera Camera = Camera.main;
         public List<ScreenshotConfig> ScreenshotConfigs;
+        public string Tag;
         public string SaveFolder = Application.dataPath + "/Screenshots";
 
         //---------------------------------------------------------------------
