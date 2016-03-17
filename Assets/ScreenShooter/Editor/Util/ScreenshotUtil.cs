@@ -63,13 +63,21 @@ namespace Borodar.ScreenShooter.Utils
             }
 
             var fileName = tag + screenshotConfig.Name + "." + screenshotConfig.Width + "x" + screenshotConfig.Height;
-            var imageFilePath = folder + "/" + fileName + extension;
+            var imageFilePath = folder + "/" + MakeValidFileName(fileName + extension);
 
             // ReSharper disable once PossibleNullReferenceException
             (new FileInfo(imageFilePath)).Directory.Create();
             File.WriteAllBytes(imageFilePath, bytes);
 
             Debug.Log("Image saved to: " + imageFilePath);
+        }
+
+        private static string MakeValidFileName(string name)
+        {
+            string invalidChars = System.Text.RegularExpressions.Regex.Escape(new string(Path.GetInvalidFileNameChars()));
+            string invalidRegStr = string.Format(@"([{0}]*\.+$)|([{0}]+)", invalidChars);
+
+            return System.Text.RegularExpressions.Regex.Replace(name, invalidRegStr, "_");
         }
     }
 }
