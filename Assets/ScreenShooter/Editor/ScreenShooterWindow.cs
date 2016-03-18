@@ -53,7 +53,7 @@ namespace Borodar.ScreenShooter
         protected void OnEnable()
         {
             _settings = ScreenShooterSettings.Load();
-            _takeButtonIcon = Resources.Load<Texture2D>("ScreenShooter/Icons/TakeScreenshotsIcon");
+            _takeButtonIcon = (Texture2D) EditorGUIUtility.Load("ScreenShooter/Icons/TakeScreenshotsIcon.png");            
 
             // Init reorderable list if required
             _list = _list ?? ReorderableConfigsList.Create(_settings.ScreenshotConfigs, MenuItemHandler);

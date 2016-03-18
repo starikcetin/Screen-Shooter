@@ -23,7 +23,8 @@ namespace Borodar.ScreenShooter
 {
     public class ScreenShooterSettings : ScriptableObject
     {
-        public const string RESOURCE_NAME = "ScreenShooterSettings";
+        public const string RESOURCE_FOLDER = "ScreenShooter/";
+        public const string RESOURCE_NAME = "ScreenShooterSettings.asset";        
 
         public Camera Camera = Camera.main;
         public List<ScreenshotConfig> ScreenshotConfigs;
@@ -36,11 +37,12 @@ namespace Borodar.ScreenShooter
 
         public static ScreenShooterSettings Load()
         {
-            var settings = Resources.Load<ScreenShooterSettings>("ScreenShooter/" + RESOURCE_NAME);
+            var settings = EditorGUIUtility.Load(RESOURCE_FOLDER + RESOURCE_NAME) as ScreenShooterSettings;
             if (settings != null) return settings;
 
-            CreateAsset<ScreenShooterSettings>(RESOURCE_NAME, "Assets/Resources/ScreenShooter/");
-            settings = Resources.Load<ScreenShooterSettings>("ScreenShooter/" + RESOURCE_NAME);
+            CreateAsset<ScreenShooterSettings>("Assets/Editor Default Resources/" + RESOURCE_FOLDER, RESOURCE_NAME);
+
+            settings = EditorGUIUtility.Load(RESOURCE_FOLDER + RESOURCE_NAME) as ScreenShooterSettings;
 
             // Initial values
             settings.ScreenshotConfigs = new List<ScreenshotConfig>
@@ -57,16 +59,16 @@ namespace Borodar.ScreenShooter
         // Helpers
         //---------------------------------------------------------------------
 
-        private static void CreateAsset<T>(string baseName, string path) where T : ScriptableObject
+        private static void CreateAsset<T>(string path, string baseName) where T : ScriptableObject
         {
-            if (baseName.Contains("/"))
-                throw new ArgumentException("Base name should not contain slashes");
-
             if (string.IsNullOrEmpty(path))
                 throw new ArgumentException("Path should not be null or empty");
 
+            if (baseName.Contains("/"))
+                throw new ArgumentException("Base name should not contain slashes");
+
             Directory.CreateDirectory(path);
-            var assetPathAndName = AssetDatabase.GenerateUniqueAssetPath(path + "/" + baseName + ".asset");
+            var assetPathAndName = AssetDatabase.GenerateUniqueAssetPath(path + "/" + baseName);
 
             var asset = ScriptableObject.CreateInstance<T>();
             AssetDatabase.CreateAsset(asset, assetPathAndName);
