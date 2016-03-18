@@ -27,7 +27,7 @@ namespace Borodar.ScreenShooter
 {    
     public class ScreenShooterWindow : EditorWindow
     {
-        public const string RESOURCE_NAME = "ScreenShooterSettings";
+        private const string ICONS_FOLDER = "ScreenShooter/Icons/";
 
         private ScreenShooterSettings _settings;
         private ReorderableList _list;
@@ -55,10 +55,11 @@ namespace Borodar.ScreenShooter
 
         protected void OnEnable()
         {
-            _takeButtonIcon = (Texture2D) EditorGUIUtility.Load("ScreenShooter/Icons/TakeScreenshotsIcon.png");
-            _cameraIcon = (Texture2D) EditorGUIUtility.Load("ScreenShooter/Icons/CameraIcon.png");
-            _configsIcon = (Texture2D) EditorGUIUtility.Load("ScreenShooter/Icons/ConfigsIcon.png");
-            _folderIcon = (Texture2D)EditorGUIUtility.Load("ScreenShooter/Icons/FolderIcon.png");
+            var skinFolder = (EditorGUIUtility.isProSkin) ? "Professional/" : "Personal/";
+            _cameraIcon = (Texture2D) EditorGUIUtility.Load(ICONS_FOLDER + skinFolder + "CameraIcon.png");
+            _configsIcon = (Texture2D) EditorGUIUtility.Load(ICONS_FOLDER + skinFolder + "ConfigsIcon.png");
+            _folderIcon = (Texture2D)EditorGUIUtility.Load(ICONS_FOLDER + skinFolder + "FolderIcon.png");
+            _takeButtonIcon = (Texture2D)EditorGUIUtility.Load(ICONS_FOLDER + "TakeScreenshotsIcon.png");
 
             _settings = ScreenShooterSettings.Load();
 
