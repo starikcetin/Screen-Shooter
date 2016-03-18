@@ -36,6 +36,9 @@ namespace Borodar.ScreenShooter
         private bool _hasErrors;
 
         private Texture2D _takeButtonIcon;
+        private Texture2D _cameraIcon;
+        private Texture2D _configsIcon;
+        private Texture2D _folderIcon;
 
         //---------------------------------------------------------------------
         // Messages
@@ -52,8 +55,12 @@ namespace Borodar.ScreenShooter
 
         protected void OnEnable()
         {
+            _takeButtonIcon = (Texture2D) EditorGUIUtility.Load("ScreenShooter/Icons/TakeScreenshotsIcon.png");
+            _cameraIcon = (Texture2D) EditorGUIUtility.Load("ScreenShooter/Icons/CameraIcon.png");
+            _configsIcon = (Texture2D) EditorGUIUtility.Load("ScreenShooter/Icons/ConfigsIcon.png");
+            _folderIcon = (Texture2D)EditorGUIUtility.Load("ScreenShooter/Icons/FolderIcon.png");
+
             _settings = ScreenShooterSettings.Load();
-            _takeButtonIcon = (Texture2D) EditorGUIUtility.Load("ScreenShooter/Icons/TakeScreenshotsIcon.png");            
 
             // Init reorderable list if required
             _list = _list ?? ReorderableConfigsList.Create(_settings.ScreenshotConfigs, MenuItemHandler);
@@ -81,7 +88,13 @@ namespace Borodar.ScreenShooter
 
         private void OnGUICameraInput()
         {
+            EditorGUILayout.Space();
+
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.Label(_cameraIcon, GUILayout.Width(24));
             GUILayout.Label("Camera", EditorStyles.boldLabel);
+            EditorGUILayout.EndHorizontal();
+
             if (_settings.Camera == null) _settings.Camera = Camera.main;
             _settings.Camera = (Camera)EditorGUILayout.ObjectField(_settings.Camera, typeof(Camera), true);
             if (_settings.Camera == null)
@@ -94,7 +107,11 @@ namespace Borodar.ScreenShooter
 
         private void OnGUIScreenshotConfigs()
         {
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.Label(_configsIcon, GUILayout.Width(24));
             GUILayout.Label("Screenshots", EditorStyles.boldLabel);
+            EditorGUILayout.EndHorizontal();
+
             _list.DoLayoutList();
             EditorGUILayout.Space();
 
@@ -104,7 +121,12 @@ namespace Borodar.ScreenShooter
 
         private void OnGUISaveFolderInput()
         {
+
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.Label(_folderIcon, GUILayout.Width(24));
             GUILayout.Label("Save To", EditorStyles.boldLabel);
+            EditorGUILayout.EndHorizontal();
+
             _settings.SaveFolder = EditorGUILayout.TextField(_settings.SaveFolder);
 
             EditorGUILayout.BeginHorizontal();
