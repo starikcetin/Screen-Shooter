@@ -40,6 +40,10 @@ namespace Borodar.ScreenShooter
         private Texture2D _configsIcon;
         private Texture2D _folderIcon;
 
+        private Texture2D _takeButtonNormal;
+        private Texture2D _takeButtonActive;
+        private GUIStyle _buttonStyle;
+
         //---------------------------------------------------------------------
         // Messages
         //---------------------------------------------------------------------
@@ -59,7 +63,12 @@ namespace Borodar.ScreenShooter
             _cameraIcon = (Texture2D) EditorGUIUtility.Load(ICONS_FOLDER + skinFolder + "CameraIcon.png");
             _configsIcon = (Texture2D) EditorGUIUtility.Load(ICONS_FOLDER + skinFolder + "ConfigsIcon.png");
             _folderIcon = (Texture2D)EditorGUIUtility.Load(ICONS_FOLDER + skinFolder + "FolderIcon.png");
+
+            _takeButtonNormal = (Texture2D)EditorGUIUtility.Load(ICONS_FOLDER + skinFolder + "TakeButtonNormal.png");
+            _takeButtonActive = (Texture2D)EditorGUIUtility.Load(ICONS_FOLDER + skinFolder + "TakeButtonActive.png");
             _takeButtonIcon = (Texture2D)EditorGUIUtility.Load(ICONS_FOLDER + "TakeScreenshotsIcon.png");
+            // Reset button style, bcz it can be initialized only on GUI section
+            _buttonStyle = null;
 
             _settings = ScreenShooterSettings.Load();
 
@@ -160,13 +169,21 @@ namespace Borodar.ScreenShooter
 
         private void OnGUITakeButton()
         {
+            if (_buttonStyle == null)
+            {
+                _buttonStyle = new GUIStyle(GUI.skin.button)
+                {
+                    normal = {background = _takeButtonNormal},
+                    active = {background = _takeButtonActive}
+                };
+            }
+
             GUI.enabled = !_hasErrors && !_isMakingScreenshotsNow;
-            GUI.backgroundColor = new Color(0.15f, 0.65f, 0.60f);
 
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
 
-            if (GUILayout.Button(_takeButtonIcon, GUILayout.Width(200f)))
+            if (GUILayout.Button(_takeButtonIcon, _buttonStyle, GUILayout.Width(200f)))
             {
                 EditorCoroutine.Start(TakeScreenshots());
             }
