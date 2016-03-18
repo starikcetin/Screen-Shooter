@@ -15,6 +15,7 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Runtime.InteropServices;
 using Borodar.ScreenShooter.Configs;
 using Borodar.ScreenShooter.Utils;
 using UnityEditor;
@@ -34,6 +35,8 @@ namespace Borodar.ScreenShooter
         private bool _isMakingScreenshotsNow;
         private bool _hasErrors;
 
+        private Texture2D _takeButtonIcon;
+
         //---------------------------------------------------------------------
         // Messages
         //---------------------------------------------------------------------
@@ -50,6 +53,8 @@ namespace Borodar.ScreenShooter
         protected void OnEnable()
         {
             _settings = ScreenShooterSettings.Load();
+            _takeButtonIcon = Resources.Load<Texture2D>("ScreenShooter/Icons/TakeScreenshotsIcon");
+
             // Init reorderable list if required
             _list = _list ?? ReorderableConfigsList.Create(_settings.ScreenshotConfigs, MenuItemHandler);
         }
@@ -132,12 +137,19 @@ namespace Borodar.ScreenShooter
 
         private void OnGUITakeButton()
         {
-            GUI.enabled = !_hasErrors;
-            GUI.backgroundColor = new Color(0.5f, 0.8f, 0.77f);
-            if (GUILayout.Button("Take Screenshots"))
+            GUI.enabled = !_hasErrors && !_isMakingScreenshotsNow;
+            GUI.backgroundColor = new Color(0.15f, 0.65f, 0.60f);
+
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+
+            if (GUILayout.Button(_takeButtonIcon, GUILayout.Width(200f)))
             {
                 EditorCoroutine.Start(TakeScreenshots());
             }
+
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.EndHorizontal();
         }
 
         [SuppressMessage("ReSharper", "PossibleLossOfFraction")]

@@ -36,11 +36,11 @@ namespace Borodar.ScreenShooter
 
         public static ScreenShooterSettings Load()
         {
-            var settings = Resources.Load<ScreenShooterSettings>(RESOURCE_NAME);
+            var settings = Resources.Load<ScreenShooterSettings>("ScreenShooter/" + RESOURCE_NAME);
             if (settings != null) return settings;
 
-            CreateAsset<ScreenShooterSettings>(RESOURCE_NAME, "Assets/Resources");
-            settings = Resources.Load<ScreenShooterSettings>(RESOURCE_NAME);
+            CreateAsset<ScreenShooterSettings>(RESOURCE_NAME, "Assets/Resources/ScreenShooter/");
+            settings = Resources.Load<ScreenShooterSettings>("ScreenShooter/" + RESOURCE_NAME);
 
             // Initial values
             settings.ScreenshotConfigs = new List<ScreenshotConfig>
