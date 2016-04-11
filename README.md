@@ -15,3 +15,6 @@ Features:
 ![Screenshot of screenshooter](https://raw.githubusercontent.com/PhannGor/phanngor.github.io/master/stuff/screenshooter/images/screenshots/04.png)
 
 Please note: There is currently a known bug within Unity itself preventing "Screen space - Overlay" UI items from being captured. Once Unity's Developers fix this bug UI elements should be captured correctly. As a workaround you can switch canvas render mode to "Screen Space - Camera" and set canvas plane distance close to camera near clipping plane.
+
+## Asset Store
+ScreenShooter is donationware. If you want to support future development or just say "thanks" to autor, please buy it on the [Asset Store](http://u3d.as/q0j). Reviews are also highly appreciated.
