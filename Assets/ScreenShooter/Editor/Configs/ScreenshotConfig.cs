@@ -23,6 +23,7 @@ namespace Borodar.ScreenShooter.Configs
         public int Width;
         public int Height;
         public Format Type;
+        public bool AppendTimestamp;
 
         public ScreenshotConfig() {}
 

@@ -35,17 +35,27 @@ namespace Borodar.ScreenShooter.Configs
             reorderableList.drawElementCallback = (position, index, isActive, isFocused) =>
             {
                 const float textWidth = 12f;
+                const float lableWidth = 32f;
+                const float boolWidth = 9f;
                 const float dimensionWidth = 45f;
                 const float typeWidth = 45f;
                 const float space = 10f;
 
                 var config = configsList[index];
-                var nameWidth = position.width - space - textWidth - 2*dimensionWidth - space - typeWidth;
+                var nameWidth = position.width - space - lableWidth - boolWidth - space - textWidth - 2*dimensionWidth - space - typeWidth;
 
                 position.y += 2;
                 position.width = nameWidth;
                 position.height -= 4;
                 config.Name = EditorGUI.TextField(position, config.Name);
+                
+                position.x += position.width;
+                position.width = lableWidth;
+                EditorGUI.LabelField(position, "Time");
+
+                position.x += position.width;
+                position.width = boolWidth;
+                config.AppendTimestamp = EditorGUI.Toggle(position, config.AppendTimestamp);
 
                 position.x += position.width + space;
                 position.width = dimensionWidth;
