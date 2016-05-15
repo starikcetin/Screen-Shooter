@@ -29,7 +29,7 @@ namespace Borodar.ScreenShooter
         public Camera Camera = Camera.main;
         public List<ScreenshotConfig> ScreenshotConfigs;
         public string Tag;
-        public string SaveFolder = Application.dataPath + "/Screenshots";
+        public string SaveFolder;
 
         //---------------------------------------------------------------------
         // Public
@@ -51,6 +51,9 @@ namespace Borodar.ScreenShooter
                 new ScreenshotConfig("iPad Hi-Res Portrait", 1536, 2048, ScreenshotConfig.Format.PNG),
                 new ScreenshotConfig("4K UHD", 3840, 2160, ScreenshotConfig.Format.PNG)
             };
+
+            var assetPath = Application.dataPath;
+            settings.SaveFolder = assetPath.Remove(assetPath.LastIndexOf("Assets")) + "Screenshots";
 
             return settings;
         }
