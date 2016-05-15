@@ -51,16 +51,17 @@ namespace Borodar.ScreenShooter
         [MenuItem("Window/Screen Shooter")]
         protected static void ShowWindow()
         {
-            var window = (ScreenShooterWindow)GetWindow(typeof(ScreenShooterWindow));
+            var window = (ScreenShooterWindow) GetWindow(typeof(ScreenShooterWindow));
             window.autoRepaintOnSceneChange = true;
+            window.title = "Screen Shooter";
             window.Show();
         }
 
         protected void OnEnable()
         {
             var skinFolder = (EditorGUIUtility.isProSkin) ? "Professional/" : "Personal/";
-            _cameraIcon = (Texture2D)EditorGUIUtility.Load(ICONS_FOLDER + skinFolder + "CameraIcon.png");
-            _configsIcon = (Texture2D)EditorGUIUtility.Load(ICONS_FOLDER + skinFolder + "ConfigsIcon.png");
+            _cameraIcon = (Texture2D) EditorGUIUtility.Load(ICONS_FOLDER + skinFolder + "CameraIcon.png");
+            _configsIcon = (Texture2D) EditorGUIUtility.Load(ICONS_FOLDER + skinFolder + "ConfigsIcon.png");
             _folderIcon = (Texture2D)EditorGUIUtility.Load(ICONS_FOLDER + skinFolder + "FolderIcon.png");
 
             _takeButtonNormal = (Texture2D)EditorGUIUtility.Load(ICONS_FOLDER + skinFolder + "TakeButtonNormal.png");
@@ -73,10 +74,6 @@ namespace Borodar.ScreenShooter
 
             // Init reorderable list if required
             _list = _list ?? ReorderableConfigsList.Create(_settings.ScreenshotConfigs, MenuItemHandler);
-
-            // Setting title and icon in OnEnable (see http://docs.unity3d.com/ScriptReference/EditorWindow-titleContent.html)
-            titleContent.text = "Screen Shooter";
-            titleContent.image = _cameraIcon;
         }
 
         protected void OnGUI()
