@@ -38,3 +38,4 @@ sysinfo.txt
 # Signing Alias
 /Assets/Scripts/Editor/PreloadSigningAlias.cs
 /Assets/Scripts/Editor/PreloadSigningAlias.cs.meta
+Assets/Editor Default Resources/ScreenShooter/ScreenShooterSettings.asset*
