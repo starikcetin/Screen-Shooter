@@ -26,15 +26,14 @@ ExportedObj/
 sysinfo.txt
 
 # tk2d generated files
-/Assets/Extensions/TK2DROOT/-tk2d.asset
-/Assets/Extensions/TK2DROOT/-tk2d.asset.meta
-/Assets/-tk2d.asset
-/Assets/-tk2d.asset.meta
+/Assets/Extensions/TK2DROOT/-tk2d.asset*
+/Assets/-tk2d.asset*
 
 # DevConsole build info
-/Assets/StreamingAssets/build_info.txt
-/Assets/StreamingAssets/build_info.txt.meta
+/Assets/StreamingAssets/build_info.txt*
 
 # Signing Alias
-/Assets/Scripts/Editor/PreloadSigningAlias.cs
-/Assets/Scripts/Editor/PreloadSigningAlias.cs.meta
+/Assets/Scripts/Editor/PreloadSigningAlias.cs*
+
+#ScreenShooter
+Assets/Editor Default Resources/ScreenShooter/ScreenShooterSettings.asset*

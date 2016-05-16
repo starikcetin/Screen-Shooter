@@ -40,7 +40,7 @@ namespace Borodar.ScreenShooter.Configs
                 const float space = 10f;
 
                 var config = configsList[index];
-                var nameWidth = position.width - space - textWidth - 2*dimensionWidth - space - typeWidth;
+                var nameWidth = position.width - space - textWidth - 2 * dimensionWidth - space - typeWidth;
 
                 position.y += 2;
                 position.width = nameWidth;
