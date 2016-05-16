@@ -127,6 +127,9 @@ namespace Borodar.ScreenShooter
 
             _settings.Tag = EditorGUILayout.TextField("Tag", _settings.Tag);
             EditorGUILayout.Space();
+
+            _settings.AppendTimestamp = EditorGUILayout.Toggle("Timestamp", _settings.AppendTimestamp);
+            EditorGUILayout.Space();
         }
 
         private void OnGUISaveFolderInput()

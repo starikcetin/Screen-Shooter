@@ -29,6 +29,7 @@ namespace Borodar.ScreenShooter
         public Camera Camera = Camera.main;
         public List<ScreenshotConfig> ScreenshotConfigs;
         public string Tag;
+        public bool AppendTimestamp;
         public string SaveFolder;
 
         //---------------------------------------------------------------------

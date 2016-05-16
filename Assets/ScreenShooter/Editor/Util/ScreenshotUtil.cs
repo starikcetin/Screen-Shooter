@@ -23,10 +23,11 @@ namespace Borodar.ScreenShooter.Utils
     {
         public static void TakeScreenshot(ScreenShooterSettings settings, ScreenshotConfig config)
         {
-            TakeScreenshot(settings.Camera, settings.SaveFolder, settings.Tag, config);
+            var suffix = settings.AppendTimestamp ? "." + DateTime.Now.ToString("yyyyMMddHHmmssfff") : "";
+            TakeScreenshot(settings.Camera, settings.SaveFolder, settings.Tag, suffix, config);
         }
 
-        public static void TakeScreenshot(Camera camera, string folderName, string tag, ScreenshotConfig screenshotConfig)
+        public static void TakeScreenshot(Camera camera, string folderName, string prefix, string suffix, ScreenshotConfig screenshotConfig)
         {
             var scrTexture = new Texture2D(screenshotConfig.Width, screenshotConfig.Height, TextureFormat.RGB24, false);
             var scrRenderTexture = new RenderTexture(scrTexture.width, scrTexture.height, 24);
@@ -40,10 +41,10 @@ namespace Borodar.ScreenShooter.Utils
             scrTexture.ReadPixels(new Rect(0, 0, scrTexture.width, scrTexture.height), 0, 0);
             scrTexture.Apply();
 
-            SaveTextureAsFile(scrTexture, folderName, tag, screenshotConfig);
+            SaveTextureAsFile(scrTexture, folderName, prefix, suffix, screenshotConfig);
         }
 
-        public static void SaveTextureAsFile(Texture2D texture, string folder, string tag, ScreenshotConfig screenshotConfig)
+        public static void SaveTextureAsFile(Texture2D texture, string folder, string prefix, string suffix, ScreenshotConfig screenshotConfig)
         {
             byte[] bytes;
             string extension;
@@ -62,32 +63,14 @@ namespace Borodar.ScreenShooter.Utils
                     throw new ArgumentOutOfRangeException();
             }
 
-            var fileName = tag + screenshotConfig.Name + "." + screenshotConfig.Width + "x" + screenshotConfig.Height;
-            var imageFilePath = screenshotConfig.AppendTimestamp 
-                ? BuildFilePath(folder, fileName, DateTime.Now, extension)
-                : BuildFilePath(folder, fileName, extension)
-                ;
+            var fileName = prefix + screenshotConfig.Name + "." + screenshotConfig.Width + "x" + screenshotConfig.Height + suffix;
+            var imageFilePath = folder + "/" + MakeValidFileName(fileName + extension);
 
             // ReSharper disable once PossibleNullReferenceException
             (new FileInfo(imageFilePath)).Directory.Create();
             File.WriteAllBytes(imageFilePath, bytes);
 
             Debug.Log("Image saved to: " + imageFilePath);
-        }
-
-        private static string BuildFilePath(string folder, string fileName, string extension)
-        {
-            return folder + "/" + MakeValidFileName(fileName + extension);
-        }
-
-        private static string BuildFilePath(string folder, string fileName, DateTime time, string extension)
-        {
-            // Create timestamp with year, month, day, hours, minutes, seconds, and milliseconds
-            // See https://msdn.microsoft.com/en-us/library/8kb3ddd4%28v=vs.110%29.aspx
-            var formatString = "yyyyMMddHHmmssfff";
-            var timeStamp = time.ToString(formatString);
-                        
-            return BuildFilePath(folder, fileName + "." + timeStamp, extension);
         }
 
         private static string MakeValidFileName(string name)
