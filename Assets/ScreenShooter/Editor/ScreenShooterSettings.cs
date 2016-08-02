@@ -26,7 +26,7 @@ namespace Borodar.ScreenShooter
         public const string RESOURCE_FOLDER = "ScreenShooter/";
         public const string RESOURCE_NAME = "ScreenShooterSettings.asset";        
 
-        public Camera Camera = Camera.main;
+        public Camera Camera;
         public List<ScreenshotConfig> ScreenshotConfigs;
         public string Tag;
         public bool AppendTimestamp;
@@ -46,6 +46,7 @@ namespace Borodar.ScreenShooter
             settings = EditorGUIUtility.Load(RESOURCE_FOLDER + RESOURCE_NAME) as ScreenShooterSettings;
 
             // Initial values
+            settings.Camera = Camera.main;
             settings.ScreenshotConfigs = new List<ScreenshotConfig>
             {
                 new ScreenshotConfig("Nexus 4 Portrait", 768, 1280, ScreenshotConfig.Format.PNG),
