@@ -43,13 +43,16 @@ namespace Borodar.ScreenShooter.Utils
         public static void SetSizeByIndex(int index)
         {
             var gameViewType = typeof (Editor).Assembly.GetType("UnityEditor.GameView");
-            var selectedSizeIndexProp = gameViewType.GetProperty("selectedSizeIndex", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             var gameViewWindow = EditorWindow.GetWindow(gameViewType);
 
-            selectedSizeIndexProp.SetValue(gameViewWindow, index, null);
-            gameViewWindow.Repaint();
-
-            gameViewType.GetMethod("GameViewAspectWasChanged", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(gameViewWindow, null);
+            #if UNITY_5_4_OR_NEWER
+                gameViewType.GetMethod("SizeSelectionCallback", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(gameViewWindow, new object[] {index, null});
+            #else
+                var selectedSizeIndexProp = gameViewType.GetProperty("selectedSizeIndex", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);    
+                selectedSizeIndexProp.SetValue(gameViewWindow, index, null);
+                gameViewWindow.Repaint();
+                gameViewType.GetMethod("GameViewAspectWasChanged", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(gameViewWindow, null);
+            #endif
         }
 
         public static void AddCustomSize(GameViewSizeType viewSizeType, GameViewSizeGroupType sizeGroupType, int width, int height, string text)
