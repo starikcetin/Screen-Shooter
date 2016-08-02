@@ -53,6 +53,7 @@ namespace Borodar.ScreenShooter
                 new ScreenshotConfig("iPad Hi-Res Portrait", 1536, 2048, ScreenshotConfig.Format.PNG),
                 new ScreenshotConfig("4K UHD", 3840, 2160, ScreenshotConfig.Format.PNG)
             };
+            settings.Tag = "01_";
 
             var assetPath = Application.dataPath;
             settings.SaveFolder = assetPath.Remove(assetPath.LastIndexOf("Assets")) + "Screenshots";
