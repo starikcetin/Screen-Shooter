@@ -19,7 +19,7 @@ using UnityEngine;
 
 namespace Borodar.ScreenShooter.Utils
 {
-    public class ScreenshotUtil
+    public static class ScreenshotUtil
     {
         public static void TakeScreenshot(ScreenShooterSettings settings, ScreenshotConfig config)
         {
@@ -75,8 +75,8 @@ namespace Borodar.ScreenShooter.Utils
 
         private static string MakeValidFileName(string name)
         {
-            string invalidChars = System.Text.RegularExpressions.Regex.Escape(new string(Path.GetInvalidFileNameChars()));
-            string invalidRegStr = string.Format(@"([{0}]*\.+$)|([{0}]+)", invalidChars);
+            var invalidChars = System.Text.RegularExpressions.Regex.Escape(new string(Path.GetInvalidFileNameChars()));
+            var invalidRegStr = string.Format(@"([{0}]*\.+$)|([{0}]+)", invalidChars);
 
             return System.Text.RegularExpressions.Regex.Replace(name, invalidRegStr, "_");
         }

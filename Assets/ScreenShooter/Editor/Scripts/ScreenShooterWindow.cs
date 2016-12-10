@@ -63,14 +63,13 @@ namespace Borodar.ScreenShooter
 
         protected void OnEnable()
         {
-            var skinFolder = (EditorGUIUtility.isProSkin) ? "Professional/" : "Personal/";
-            _cameraIcon = (Texture2D) EditorGUIUtility.Load(ICONS_FOLDER + skinFolder + "CameraIcon.png");
-            _configsIcon = (Texture2D) EditorGUIUtility.Load(ICONS_FOLDER + skinFolder + "ConfigsIcon.png");
-            _folderIcon = (Texture2D)EditorGUIUtility.Load(ICONS_FOLDER + skinFolder + "FolderIcon.png");
+            _cameraIcon = EditorUtil.GetCameraIcon();
+            _configsIcon = EditorUtil.GetConfigsIcon();
+            _folderIcon = EditorUtil.GetFolderIcon();
+            _takeButtonNormal = EditorUtil.GetButtonNormalTexture();
+            _takeButtonActive = EditorUtil.GetButtonActiveTexture();
+            _takeButtonIcon = EditorUtil.GetScreenshotsIcon();
 
-            _takeButtonNormal = (Texture2D)EditorGUIUtility.Load(ICONS_FOLDER + skinFolder + "TakeButtonNormal.png");
-            _takeButtonActive = (Texture2D)EditorGUIUtility.Load(ICONS_FOLDER + skinFolder + "TakeButtonActive.png");
-            _takeButtonIcon = (Texture2D)EditorGUIUtility.Load(ICONS_FOLDER + "TakeScreenshotsIcon.png");
             // Reset button style, bcz it can be initialized only on GUI section
             _buttonStyle = null;
 
@@ -152,7 +151,7 @@ namespace Borodar.ScreenShooter
             GUI.enabled &= Directory.Exists(_settings.SaveFolder);
             if (GUILayout.Button("Show", GUILayout.ExpandWidth(false)))
             {
-                Application.OpenURL("file://" + _settings.SaveFolder);
+                Application.OpenURL("file://" + Path.GetFullPath(_settings.SaveFolder));
             }
             GUI.enabled = !_isMakingScreenshotsNow;
 
