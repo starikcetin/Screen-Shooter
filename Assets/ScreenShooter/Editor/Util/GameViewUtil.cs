@@ -45,7 +45,9 @@ namespace Borodar.ScreenShooter.Utils
             var gameViewType = typeof (Editor).Assembly.GetType("UnityEditor.GameView");
             var gameViewWindow = EditorWindow.GetWindow(gameViewType);
 
-            #if UNITY_5_4_OR_NEWER
+            #if UNITY_5_5_OR_NEWER
+                gameViewType.GetMethod("SizeSelectionCallback", BindingFlags.Public | BindingFlags.Instance).Invoke(gameViewWindow, new object[] { index, null });
+            #elif UNITY_5_4
                 gameViewType.GetMethod("SizeSelectionCallback", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(gameViewWindow, new object[] {index, null});
             #else
                 var selectedSizeIndexProp = gameViewType.GetProperty("selectedSizeIndex", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);    
