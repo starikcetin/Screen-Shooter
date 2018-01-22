@@ -14,22 +14,20 @@
 
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection.Emit;
 using UnityEditor;
-using UnityEditorInternal;
 using UnityEngine;
 using Format = Borodar.ScreenShooter.Configs.ScreenshotConfig.Format;
 
 namespace Borodar.ScreenShooter.Configs
 {
-    public class ReorderableConfigsList
+    public static class ReorderableConfigsList
     {
         private static readonly string[] _fileTypes = {"PNG", "JPG"};
 
         [SuppressMessage("ReSharper", "UseObjectOrCollectionInitializer")]
-        public static ReorderableList Create(List<ScreenshotConfig> configsList, GenericMenu.MenuFunction2 menuItemHandler)
+        public static UnityEditorInternal.ReorderableList Create(List<ScreenshotConfig> configsList, GenericMenu.MenuFunction2 menuItemHandler)
         {
-            var reorderableList = new ReorderableList(configsList, typeof (ScreenshotConfig), true, false, true, true);
+            var reorderableList = new UnityEditorInternal.ReorderableList(configsList, typeof (ScreenshotConfig), true, false, true, true);
 
             reorderableList.elementHeight = EditorGUIUtility.singleLineHeight + 4;
             reorderableList.drawElementCallback = (position, index, isActive, isFocused) =>

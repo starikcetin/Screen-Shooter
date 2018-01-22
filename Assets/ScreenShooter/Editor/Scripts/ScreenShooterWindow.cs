@@ -15,11 +15,9 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Runtime.InteropServices;
 using Borodar.ScreenShooter.Configs;
 using Borodar.ScreenShooter.Utils;
 using UnityEditor;
-using UnityEditorInternal;
 using UnityEngine;
 using GameViewSizeType = Borodar.ScreenShooter.Utils.GameViewUtil.GameViewSizeType;
 
@@ -27,10 +25,8 @@ namespace Borodar.ScreenShooter
 {    
     public class ScreenShooterWindow : EditorWindow
     {
-        private const string ICONS_FOLDER = "ScreenShooter/Icons/";
-
         private ScreenShooterSettings _settings;
-        private ReorderableList _list;
+        private UnityEditorInternal.ReorderableList _list;
 
         private bool _isMakingScreenshotsNow;
         private bool _hasErrors;
@@ -53,11 +49,7 @@ namespace Borodar.ScreenShooter
         {
             var window = (ScreenShooterWindow) GetWindow(typeof(ScreenShooterWindow));
             window.autoRepaintOnSceneChange = true;
-            #if UNITY_5_4_OR_NEWER
-                window.titleContent = new GUIContent("Screen Shooter");
-            #else
-                window.title = "Screen Shooter";
-            #endif
+            window.titleContent = new GUIContent("Screen Shooter");
             window.Show();
         }
 
