@@ -62,7 +62,8 @@ namespace Borodar.ScreenShooter.Utils
             var group = GetGroup(sizeGroupType);
             var addCustomSize = _getGroup.ReturnType.GetMethod("AddCustomSize");
             var gameViewSizeType = typeof (Editor).Assembly.GetType("UnityEditor.GameViewSize");
-            var ctor = gameViewSizeType.GetConstructor(new Type[] {typeof (int), typeof (int), typeof (int), typeof (string)});
+            //var ctor = gameViewSizeType.GetConstructor(new Type[] {typeof (int), typeof (int), typeof (int), typeof (string)});
+            var ctor = gameViewSizeType.GetConstructors()[0];
             var newSize = ctor.Invoke(new object[] {(int) viewSizeType, width, height, text});
             addCustomSize.Invoke(group, new object[] {newSize});
         }
